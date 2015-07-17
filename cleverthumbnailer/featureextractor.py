@@ -34,8 +34,8 @@ class GenericExtractor(object):
         """
 
         try:                                            # test for positive integer
-            assert self.sr > 0
-            assert self.sr.is_integer()
+            assert sr > 0
+            assert (sr*1.0).is_integer()
         except (TypeError, AssertionError, AttributeError):
             raise TypeError('Sample Rate sr must be a positive integer')
 
@@ -95,7 +95,7 @@ class ConstQSegmentExtractor(GenericExtractor):
             segmentTypes (Optional[int]): desired number of target segment types. Defaults to 4.
 
         """
-        super(ConstQSegmentExtractor, sr).__init__()
+        super(ConstQSegmentExtractor).__init__(sr)
         self.neighbourhoodLimit = neighbourhoodLimit
         self.segmentTypes = segmentTypes
         # create new QM segmenter instance
@@ -153,9 +153,8 @@ class LoudnessExtractor(GenericExtractor):
         """
 
     def __init__(self, sr, blockSize=1024):
-
-        super(LoudnessExtractor, sr).__init__()
-        self._blockSize = 1024
+        super(LoudnessExtractor).__init__(sr)
+        self._blockSize = blockSize
         self._features = numpy.array([])
 
     @property
@@ -176,3 +175,8 @@ class LoudnessExtractor(GenericExtractor):
     def processRemaining(self):
         self._done = True
 
+class ApplauseExtractor(GenericExtractor):
+    def __init__(self, sr, blockSize=1024):
+        super(ApplauseExtractor, sr).__init__()
+        self._blockSize = blockSize
+        self._features = numpy.array([])
