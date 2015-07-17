@@ -95,7 +95,7 @@ class ConstQSegmentExtractor(GenericExtractor):
             segmentTypes (Optional[int]): desired number of target segment types. Defaults to 4.
 
         """
-        super(ConstQSegmentExtractor).__init__(sr)
+        super(ConstQSegmentExtractor, self).__init__(sr)
         self.neighbourhoodLimit = neighbourhoodLimit
         self.segmentTypes = segmentTypes
         # create new QM segmenter instance
@@ -153,7 +153,7 @@ class LoudnessExtractor(GenericExtractor):
         """
 
     def __init__(self, sr, blockSize=1024):
-        super(LoudnessExtractor).__init__(sr)
+        super(LoudnessExtractor, self).__init__(sr)
         self._blockSize = blockSize
         self._features = numpy.array([])
 
