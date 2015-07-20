@@ -1,30 +1,28 @@
+#!/usr/bin/env python
 __author__ = 'Jon'
 
-def interpolate(earlyXY, lateXY, interX):
+def interpolate(XY1, XY2, interX):
     """Given two 2D points, interpolate a Y value from an intermediate X value
 
     Args:
-        earlyXY: Left-hand tuple of 2D point in form (x, y)
-        lateXY: Right-hand tuple of 2D point in form (x, y)
+        XY1: Left-hand tuple of 2D point in form (x, y)
+        XY2: Right-hand tuple of 2D point in form (x, y)
         interX: X value between early and late to base interpolation on
 
     Returns:
         interY: Interpolated calculated Y value
 
     Raises:
-        ValueError: when interX is not between earlyX and earlyY
+        ValueError: when interX is not between X1 and Y1
     """
-    earlyX, earlyY = earlyXY        # unbundle tuples
-    lateX, lateY = lateXY
 
-    xRatio = (abs(interX-earlyX)*1. / abs(lateX-earlyX)*1.)  # get the ratio of early to late values to use
-    yDifference = abs(lateY-earlyY)     # get the amount difference between two known Y values
-    # result is the ratio of X multiplied by the difference in two Y values, plus the DC offset
-    result = (xRatio * yDifference) + min(earlyY, lateY)
-    return result
+    if(XY1[0]>XY2[0]):      # make XY1 always the lowest X value
+        XY1, XY2 = (XY2, XY1)
+    X1, Y1 = XY1        # unbundle tuples
+    X2, Y2 = XY2
+    xDiff = abs(X2-X1)
+    yDiff = Y2-Y1
+    ratio = (interX-X1+.0)/(xDiff*1.0)
+    return (ratio * yDiff * 1.0) + Y1
 
-if __name__ == '__main__':
-    tryA = (10,10)
-    tryB = (20,30)
-    print(interpolate(tryA, tryB))
 
