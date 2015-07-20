@@ -1,0 +1,7 @@
+#CleverThumbnails
+
+Cleverthumbnailer is a Python application to analyse songs and create representative audio thumbnails of them. Given a full length piece of music in WAVE format (`*.bwf` and `*.wav`), cleverthumbnailer generates a short audio extract most representative of the track in general. It bases this decision on three factors:
+
+1. **Segment Detection**. Using the [QMUL Segmenter](http://dx.doi.org/10.1109/TASL.2007.910781) algorithm, distinct musical sections of a piece are found. In western pop music, this algorithm detects transitions between verses, choruses, and bridges. In western classical music, segment boundaries are often found at key changes/modulations.
+2. **RMS Enegy profiling**. The varying dynamics of a piece of music are calculated by tracking the RMS energy over the course of a piece. Sections of a piece that are loud (by default) or have a high amount of dynamic variation (`--difference` flag) are preferred for inclusion in the audio snippet generated.
+3. **Applause detection**. An algorithm that determines [spectral centroid](https://dx.doi.org/10.1121%2F1.381843) over time is used to detect applause within a recording. Periods of applause are avoided in the resulting audio thumbnail. 
