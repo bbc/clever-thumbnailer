@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Class to undertaken audio feature analysis"""
 
-from featureextractor import ConstQSegmentExtractor, LoudnessExtractor, SpectralCentroidExtractor
+from featureextractor import ConstQSegmentExtractor, LoudnessExtractor, ApplauseExtractor
 from audiodata import AudioData
 
 class AudioAnalyser(object):
@@ -10,8 +10,7 @@ class AudioAnalyser(object):
         self.loaded = False
         self.features = {ConstQSegmentExtractor(),
                          LoudnessExtractor(),
-                         SpectralCentroidExtractor()}
-        }
+                         ApplauseExtractor()}
         self.audio = AudioData()
 
     def loadAudio(self, fileName):
@@ -25,7 +24,7 @@ class AudioAnalyser(object):
         """
 
     def processFrames(self):
-        for frame in self.audio.frames(windowSize=self.windowSize, blockSize=self.windowSize):
+        for frame in self.audio.frames(self.windowSize):
             for featureExtractor in self.features:
                 featureExtractor.process(frame)
 
