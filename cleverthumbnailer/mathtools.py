@@ -23,6 +23,7 @@ def interpolate(XY1, XY2, interX):
     xDiff = abs(X2-X1)
     yDiff = Y2-Y1
     ratio = (interX-X1+.0)/(xDiff*1.0)
-    return (ratio * yDiff * 1.0) + Y1
+    interY = (ratio * yDiff * 1.0) + Y1
+    return interX, interY
 
 

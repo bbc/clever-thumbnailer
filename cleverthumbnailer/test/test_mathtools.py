@@ -73,7 +73,9 @@ class TestInterpolate(TestCase):
         X1, X2 = XY1
         Y1, Y2 = XY2
         for inter, expected in results:
-            self.assertAlmostEqual(interpolate(XY1, XY2, inter), expected,2)
+            interX, interY = interpolate(XY1, XY2, inter)
+            self.assertEqual(inter, interX)
+            self.assertAlmostEqual(expected, interY,2)
 
 if __name__ == '__main__':
     main()
