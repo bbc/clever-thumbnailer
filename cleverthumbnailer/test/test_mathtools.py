@@ -52,14 +52,14 @@ class TestInterpolate(TestCase):
     def test_invalidInputTuples(self):
         XY1 = (1, 1, 1)     # should raise ValueError
         XY2 = (1, 1)
-        results = ((1, None))
+        results = [(1, None)]
         with self.assertRaises(ValueError):
             self.checkInterpolate(XY1, XY2, results)
 
     def test_invalidInter(self):
         XY1 = (1, 1)
         XY2 = (1, 1)
-        results = (('string', None))    # should not accept string inputs
+        results = [('string', 0)]    # should not accept string inputs
         with self.assertRaises(ValueError):
             self.checkInterpolate(XY1, XY2, results)
 
@@ -68,6 +68,26 @@ class TestInterpolate(TestCase):
         XY2 = [1, 2]        # set up y = (1)x + 1
         results = ((0, 1), (0.3, 1.3), (1, 2))
         self.checkInterpolate(XY1, XY2, results)
+
+    def test_sameValid(self):
+        XY1 = (1, 1)
+        XY2 = (1, 1)
+        results = [(1, 1)]
+        self.checkInterpolate(XY1, XY2, results)
+
+    def test_sameInvalid(self):
+        XY1 = (1, 1)
+        XY2 = (1, 1)
+        results = [(2, None)]   # shouldn't extrapolate, should throw ValueError
+        with self.assertRaises(ValueError):
+            self.checkInterpolate(XY1, XY2, results)
+
+    def test_inconsistentXY(self):
+        XY1 = (1, 1)
+        XY2 = (1, 2)    # shouldn't accept multiple Y values for a single X
+        results = [(1, None)]
+        with self.assertRaises(ValueError):
+            self.checkInterpolate(XY1, XY2, results)
 
     def checkInterpolate(self, XY1, XY2, results):
         X1, X2 = XY1
