@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 __author__ = 'Jon'
 
-from cleverthumbnailer.mathtools import interpolate
+from cleverthumbnailer.mathtools import interpolate, interpMean
 from unittest import TestCase, main
+import numpy
 
 class TestInterpolate(TestCase):
     """Test `interpolate()` function in `mathtools.py`"""
@@ -96,6 +97,30 @@ class TestInterpolate(TestCase):
             interX, interY = interpolate(XY1, XY2, inter)
             self.assertEqual(inter, interX)
             self.assertAlmostEqual(expected, interY,2)
+
+class TestInterpMean(TestCase):
+
+    def test_valid(self):
+        samples = ((0, 0), (8, 8), (16, 4), (24, 8), (32, 4))
+        self.assertEqual(interpMean(samples, 8, 32), 6)
+
+    def test_valid2(self):
+        samples = ((0, 0), (8, 8), (16, 4), (24, 8), (32, 4))
+        self.assertEqual(interpMean(samples, 4, 32), 6)
+
+    def test_valid3(self):
+        samples = ((0, 0), (5, 0), (10, 5), (15, 3))
+        self.assertEqual(interpMean(samples, 5, 15), (32.5/10))
+        self.assertEqual(interpMean(samples, 0, 15), (32.5/15))
+        self.assertEqual(interpMean(samples, 7.5, 12.5), (20.625/5))
+
+    def test_valid4(self):
+        samples = ((0, 0), (2, -2), (4, 0), (6, 2), (8, 0))
+        self.assertEqual(interpMean(samples, 0, 8), 0)
+        self.assertEqual(interpMean(samples, 0, 2), -1)
+        self.assertEqual(interpMean(samples, 2, 4), -1)
+        self.assertEqual(interpMean(samples, 4, 6), 1)
+        self.assertEqual(interpMean(samples, 6, 8), 1)
 
 if __name__ == '__main__':
     main()
