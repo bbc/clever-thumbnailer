@@ -27,7 +27,7 @@ class GenericExtractor(object):
         """
 
         try:                                            # test for positive integer
-            assert sr > 0
+            assert sr >= 0
             assert (sr*1.0).is_integer()
         except (TypeError, AssertionError, AttributeError):
             raise TypeError('Sample Rate sr must be a positive integer')
@@ -70,3 +70,6 @@ class GenericExtractor(object):
         if not self._done:                              # raise exception if we haven't performed any analysis yet
             raise  ValueError('Audio features not yet been extracted')
         return self._features
+
+    def secsToSamples(self, secs):
+        return secs*self.sr

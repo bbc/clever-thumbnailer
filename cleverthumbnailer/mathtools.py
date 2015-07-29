@@ -63,8 +63,12 @@ def interpMean(sampledXYArray, startX, endX):
 
 def searchAndInterpolate(sampledXYArray, sample, side='left'):
     """Find the amplitude of a particular sample, given an undersampled array of values, using interpolation"""
-
-    arrayInsertionPoint = numpy.searchsorted(numpy.transpose(sampledXYArray)[0], sample,side)
+    arrayXVals = numpy.transpose(sampledXYArray)[0]
+    if sample < min(arrayXVals):
+        return 0, sampledXYArray[0]
+    if sample > max(arrayXVals):
+        return len(sampledXYArray), sampledXYArray[-1]
+    arrayInsertionPoint = numpy.searchsorted(arrayXVals, sample,side)
     start = sampledXYArray[max(0, arrayInsertionPoint-1)]
     end = sampledXYArray[min(arrayInsertionPoint, len(sampledXYArray)-1)]
     interpVal = (interpolate(start, end, sample))
