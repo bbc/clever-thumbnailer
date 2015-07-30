@@ -4,7 +4,7 @@ import numpy
 import wave
 
 class AudioData(object):
-    def __init__(self):
+    def __init__(self, filename):
         self._wavefile = None
         self._bytesPerSample = None
         self._sampleRate = None
@@ -12,6 +12,8 @@ class AudioData(object):
         self._waveData = None
         self.comptype = None
         self.loaded = False
+
+        self.loadFile(filename)
         pass
 
     @property
