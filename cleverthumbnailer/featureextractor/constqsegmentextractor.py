@@ -3,6 +3,8 @@ __author__ = 'Jon'
 
 import qmsegmenter
 import febase
+from enums import BlockDomain
+from cleverthumbnailer.segment import Segment
 
 
 class ConstQSegmentExtractor(febase.GenericExtractor):
@@ -13,7 +15,7 @@ class ConstQSegmentExtractor(febase.GenericExtractor):
 
     _Segmenter: https://code.soundsoftware.ac.uk/projects/qm-dsp
     """
-    def __init__(self, sr, neighbourhoodLimit=1, segmentTypes=4):
+    def __init__(self, sr, neighbourhoodLimit=4, segmentTypes=4):
         """
         Args:
             sr (int): required sample rate to work at
@@ -27,7 +29,26 @@ class ConstQSegmentExtractor(febase.GenericExtractor):
         # create new QM segmenter instance
         self.qmsegmenter = qmsegmenter.ClusterMeltSegmenter(self.makeParams())
         self.qmsegmenter.initialise(sr)                 # initialise instance
+        self._segInfo = None
 
+    @property
+    def segmentSampleRate(self):
+        try:
+            return float(self._segInfo.samplerate)
+        except AttributeError:
+            return None
+
+    @property
+    def nSegTypes(self):
+        try:
+            return int(self._segInfo.nsegtypes)
+        except AttributeError:
+            return None
+
+    @property
+    def features(self):
+        for feature in self._segInfo.segments:
+            yield Segment(int(feature.start), int(feature.end), int(feature.type))
 
     def processFrame(self, frame):
         """Process a single frame of input signal using feature extraction algorithm
@@ -44,7 +65,7 @@ class ConstQSegmentExtractor(febase.GenericExtractor):
         """
         self.qmsegmenter.segment(self.segmentTypes)     # perform segmentation using QM DSP segmenter
         # now fetch all of our features
-        self._features = self.qmsegmenter.getSegmentation()
+        self._segInfo = self.qmsegmenter.getSegmentation()
         self._done = True                               # state flag to allow us to
 
     @property
@@ -58,6 +79,8 @@ class ConstQSegmentExtractor(febase.GenericExtractor):
     @property
     def stepSize(self):
         return self.qmsegmenter.getHopsize()            # get desired hop size from QM segmenter instance
+
+
 
     def makeParams(self):
         params = qmsegmenter.ClusterMeltSegmenterParams()
