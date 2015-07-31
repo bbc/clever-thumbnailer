@@ -67,6 +67,4 @@ class GenericExtractor(object):
 
     @property
     def features(self):
-        if not self._done:                              # raise exception if we haven't performed any analysis yet
-            raise  ValueError('Audio features not yet been extracted')
         return self._features
