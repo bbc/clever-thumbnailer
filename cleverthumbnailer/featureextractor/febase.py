@@ -27,7 +27,7 @@ class GenericExtractor(object):
         """
 
         try:                                            # test for positive integer
-            assert sr > 0
+            assert sr >= 0
             assert (sr*1.0).is_integer()
         except (TypeError, AssertionError, AttributeError):
             raise TypeError('Sample Rate sr must be a positive integer')
@@ -68,3 +68,6 @@ class GenericExtractor(object):
     @property
     def features(self):
         return self._features
+
+    def secsToSamples(self, secs):
+        return secs*self.sr

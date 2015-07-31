@@ -2,7 +2,9 @@
 __author__ = 'Jon'
 
 import febase
-
+import numpy
+import enums
+from cleverthumbnailer.mathtools import interpMean
 
 class LoudnessExtractor(febase.GenericExtractor):
     """Process and store the windowed RMS of a signal.
@@ -15,10 +17,11 @@ class LoudnessExtractor(febase.GenericExtractor):
 
     """
 
-    def __init__(self, sr, blockSize=1024):
+    def __init__(self, sr):
         super(LoudnessExtractor, self).__init__(sr)
-        self._blockSize = blockSize
-        self._features = numpy.array([])
+        self._features = []
+        self._currentsample = 0
+        self._finishedVals = []
 
     @property
     def blockSize(self):
@@ -28,12 +31,24 @@ class LoudnessExtractor(febase.GenericExtractor):
     def stepSize(self):
         return self._blockSize
 
+    def frameDomain(self):
+        return enums.BlockDomain.time       # Time domain extractor
+
     def processFrame(self, frame):
-        if len(frame) != self._blockSize:
-            raise ValueError('Frame length is not correct for given block size ({0})'.format(self._blockSize))
+        # don't worry about frame size; just process anyway
         framevals = numpy.asarray(frame)
         rms = numpy.sqrt(numpy.mean(numpy.square(framevals)))
-        self._features.append(rms)
+        self._features.append((self._currentsample, rms))   # append tuple of current sample and RMS
+        self._currentsample += len(frame) #
 
     def processRemaining(self):
         self._done = True
+
+    def getMean(self, minSample, maxSample):
+        # get mean windowed RMS between min and max samples
+        return interpMean(self._features, minSample, maxSample)
+
+    def getMeanInSeconds(self, minSeconds, maxSeconds):
+        return interpMean(self._features, self.secsToSamples(minSeconds), self.secsToSamples(maxSeconds))
+
+

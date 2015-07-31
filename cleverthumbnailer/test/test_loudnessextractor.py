@@ -1,22 +1,7 @@
-__author__ = 'Jon'
-
-import qmsegmenter
-from cleverthumbnailer.featureextractor import GenericExtractor, LoudnessExtractor
+__author__ = 'jont'
 from unittest import TestCase, main
+from cleverthumbnailer.featureextractor import LoudnessExtractor
 import numpy
-
-
-class TestGenericExtractor(TestCase):
-    def test_SR(self):
-        self.assertRaises(TypeError, lambda _: GenericExtractor())
-        self.assertRaises(TypeError, lambda _: GenericExtractor('string'))
-        self.assertRaises(TypeError, lambda _: GenericExtractor(-1))
-        self.assertRaises(TypeError, lambda _: GenericExtractor((2.1)))
-        x = GenericExtractor(44100)
-        self.assertEqual(x.sr, 44100)
-        self.assertRaises(ValueError, getattr, x, "features")   # property .features should throw ValueError
-        x.processRemaining()
-        self.assertEqual(x.features, None)                      # should have no features
 
 
 class TestLoudnessExtractor(TestCase):
@@ -44,15 +29,23 @@ class TestLoudnessExtractor(TestCase):
                  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,
                  1.,  1.,  1.,  1.,  1.,  1.}
 
+    _MATHSTEST = [8, 8, 8, 8, 8, 8, 8, 8, 2, 2, 2, 2, 2, 2, 2, 2, 8, 8, 8, 8, 8, 8, 8, 8]
+
     def test_CorrectLoudness(self):
-        t = numpy.linspace(-1,1,64)
-        noise = numpy.random.normal(-1,1,100)    # should have
-        sinwave = numpy.sin(t)
-        gen = LoudnessExtractor(64, 8)
-        for fr in range(0, len(sinwave), 8):
-            testframe = sinwave[fr:fr+8]
+        self.processLoudnessTest(0, 8, self._MATHSTEST, [(0,8), (8, 2), (16, 8)], 5)
+
+
+    def processLoudnessTest(self, sr, blocksize, array, expectedFeatures, expectedMean, start=None, end=None):
+        gen = LoudnessExtractor(sr)
+        if not start:
+            start = 0
+        if not end:
+            end = len(array)
+        for fr in range(0, len(array), blocksize):
+            testframe = array[fr:fr+blocksize]
             gen.processFrame(testframe)
+        gen.processRemaining()
+        f = gen.features
+        self.assertEqual(gen.features, expectedFeatures)
+        self.assertEqual(gen.getMean(start, end), expectedMean)
 
-
-if __name__ == '__main__':
-    main()
