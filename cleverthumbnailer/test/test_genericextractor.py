@@ -12,7 +12,6 @@ class TestGenericExtractor(TestCase):
         self.assertRaises(TypeError, lambda _: GenericExtractor((2.1)))
         x = GenericExtractor(44100)
         self.assertEqual(x.sr, 44100)
-        self.assertRaises(ValueError, getattr, x, "features")   # property .features should throw ValueError
         x.processRemaining()
         self.assertEqual(x.features, None)                      # should have no features
 

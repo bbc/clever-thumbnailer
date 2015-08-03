@@ -2,12 +2,12 @@
 __author__ = 'Jon'
 
 import qmsegmenter
-import febase
+from timedomainextractor import TimeDomainExtractor
 from enums import BlockDomain
 from cleverthumbnailer.segment import Segment
 
 
-class ConstQSegmentExtractor(febase.GenericExtractor):
+class ConstQSegmentExtractor(TimeDomainExtractor):
     """Wrapper for QM DSP Constant-Q Segmenter_ algorithm.
 
     Analyzes audio and creates a candidate set of musical sections, described by type and timestamp. Such sections
@@ -50,7 +50,7 @@ class ConstQSegmentExtractor(febase.GenericExtractor):
         for feature in self._segInfo.segments:
             yield Segment(int(feature.start), int(feature.end), int(feature.type))
 
-    def processFrame(self, frame):
+    def processFrame(self, frame, timestamp=None):
         """Process a single frame of input signal using feature extraction algorithm
         Args:
             frame (complex array): data for one audio frame for processing, in frequency domain
@@ -67,10 +67,6 @@ class ConstQSegmentExtractor(febase.GenericExtractor):
         # now fetch all of our features
         self._segInfo = self.qmsegmenter.getSegmentation()
         self._done = True                               # state flag to allow us to
-
-    @property
-    def frameDomain(self):
-        return BlockDomain.frequency                    # plugin requires frequency domain signals
 
     @property
     def blockSize(self):

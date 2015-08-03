@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 __author__ = 'Jon'
 
-import febase
+from timedomainextractor import TimeDomainExtractor
 import numpy
 import enums
 from cleverthumbnailer.mathtools import interpMean
 
-class LoudnessExtractor(febase.GenericExtractor):
+class LoudnessExtractor(TimeDomainExtractor):
     """Process and store the windowed RMS of a signal.
     Attributes:
         sr (int): Working sample rate (in samples/sec) of feature extractor
@@ -31,10 +31,7 @@ class LoudnessExtractor(febase.GenericExtractor):
     def stepSize(self):
         return self._blockSize
 
-    def frameDomain(self):
-        return enums.BlockDomain.time       # Time domain extractor
-
-    def processFrame(self, frame):
+    def processFrame(self, frame, timestamp=None):
         # don't worry about frame size; just process anyway
         framevals = numpy.asarray(frame)
         rms = numpy.sqrt(numpy.mean(numpy.square(framevals)))

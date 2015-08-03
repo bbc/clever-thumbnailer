@@ -2,6 +2,9 @@
 __author__ = 'Jon'
 
 import enums
+from cleverthumbnailer.mathtools import windowDiscard
+from enums import BlockDomain
+import numpy
 
 class GenericExtractor(object):
     """Base class for several audio feature extraction algorithms.
@@ -25,7 +28,6 @@ class GenericExtractor(object):
         Raises:
             TypeError: If `sr` is not a positive whole number
         """
-
         try:                                            # test for positive integer
             assert sr >= 0
             assert (sr*1.0).is_integer()
@@ -38,10 +40,24 @@ class GenericExtractor(object):
         # set state
         self._done = False
 
-    def processFrame(self, frame):
+    def processAllAudio(self, audioSamples):
+        """Process stream of audio based on list (frames)""" #TODO: Expand docstring
+        assert numpy.ndim(audioSamples) == 1
+        for i, frame in enumerate(windowDiscard(audioSamples, self.stepSize, self.blockSize)):
+            self.processTimeDomainFrame(frame, timeInSamples=i*self.stepSize)
+        self.processRemaining()
+        return self.features
+
+    def processTimeDomainFrame(self, *args, **kwargs):
+        """Process time domain audio frame"""
+        raise NotImplementedError
+
+    def processFrame(self, frame, timestamp):
         """Process a single frame of input signal using feature extraction algorithm
         Args:
             frame (array-like): data for one audio frame for processing
+        Timestamp:
+            timestamp (int): time, in samples, of beginning of frame
         """
         raise NotImplementedError()
 
@@ -71,3 +87,7 @@ class GenericExtractor(object):
 
     def secsToSamples(self, secs):
         return secs*self.sr
+
+    @property
+    def frameDomain(self):
+        raise NotImplementedError
