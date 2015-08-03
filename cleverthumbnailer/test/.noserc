@@ -1,0 +1,4 @@
+[nosetests]
+
+verbosity=5
+logging-level=DEBUG
