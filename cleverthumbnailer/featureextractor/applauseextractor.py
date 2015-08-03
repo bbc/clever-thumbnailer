@@ -16,21 +16,17 @@ class ApplauseState(enum.Enum):
     music = 1
 
 class ApplauseExtractor(FrequencyDomainExtractor):
-    def __init__(self, sr, blockSize=1024, stepSize=512, threshold=0.04, hysteresis=0.02):
-        super(ApplauseExtractor, sr).__init__()
+    def __init__(self, sr, blockSize=1024, stepSize=512, threshold=0.04, hysteresis=0.02, movingAverageLength=500):
+        super(ApplauseExtractor, self).__init__(sr)
         self._logger = logging.getLogger(__name__)
         self._blockSize = blockSize
         self._stepSize = stepSize
-        self._features = numpy.array([])
+        self._features = []
+        self._crestWave = []
         self.threshold = threshold
         self.hysteresis = hysteresis
         self._currentApplauseState = None
-        self.movingAverageBuffer = None
-
-
-    def resizeMovAvgBuffer(self):
-        self.movingAverageBuffer = deque([], maxlen=self.moving_average)
-        return
+        self.movingAverageBuffer = deque([], maxlen=movingAverageLength)
 
     def calculateBufferMean(self):
         return numpy.mean(self.movingAverageBuffer)
@@ -49,19 +45,19 @@ class ApplauseExtractor(FrequencyDomainExtractor):
         Args:
             frame(Complex[]): frequency domain (FFT) frame. Should be of length .blockSize
             timestamp(int): starting sample of block
-        Returns:
-            crest:
         """
         assert len(frame) >= self.blockSize
         spectralCrestFactor = spectralCrest(frame)  # obtain spectral crest factor for processed window
         self.movingAverageBuffer.append(spectralCrestFactor)    # add SCF to buffer
+        self._crestWave.append(spectralCrestFactor)
         bufferMean = self.calculateBufferMean()
         newState = self.applauseDetection(bufferMean)   # see if we have a new feature (speech/music) for current buffer
-        if newState:
-            self.features.append((newState, timestamp)) # record state and time of new feature
+        if newState is not None:
+            self._features.append((newState, timestamp)) # record state and time of new feature
             self._logger.debug('New Event: {0} at time {1}'.format(newState, timestamp))
 
     def processRemaining(self):
+        self._logger.debug('processRemaining() called but nothing to do.')
         pass
 
     def applauseDetection(self, frame):
@@ -80,7 +76,7 @@ class ApplauseExtractor(FrequencyDomainExtractor):
                 return self._currentApplauseState
         return None
 
-def spectralCrest(self, freqDomainFrame):
+def spectralCrest(freqDomainFrame):
     """Calculate the crest factory of a block of audio
     Args:
         freqDomainFrame(complex array-like): frequency domain information for audio block

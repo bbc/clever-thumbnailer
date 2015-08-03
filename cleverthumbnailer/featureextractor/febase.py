@@ -44,7 +44,7 @@ class GenericExtractor(object):
         """Process stream of audio based on list (frames)""" #TODO: Expand docstring
         assert numpy.ndim(audioSamples) == 1
         for i, frame in enumerate(windowDiscard(audioSamples, self.stepSize, self.blockSize)):
-            self.processTimeDomainFrame(frame, timeInSamples=i*self.stepSize)
+            self.processTimeDomainFrame(frame, i*self.stepSize)
         self.processRemaining()
         return self.features
 

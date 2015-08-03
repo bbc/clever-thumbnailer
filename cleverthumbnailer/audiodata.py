@@ -12,7 +12,6 @@ class AudioData(object):
         self._waveData = None
         self.comptype = None
         self.loaded = False
-
         self.loadFile(filename)
         pass
 

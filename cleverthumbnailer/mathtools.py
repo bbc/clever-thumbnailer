@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 __author__ = 'Jon'
 import numpy
 
@@ -73,3 +74,12 @@ def searchAndInterpolate(sampledXYArray, sample, side='left'):
     end = sampledXYArray[min(arrayInsertionPoint, len(sampledXYArray)-1)]
     interpVal = (interpolate(start, end, sample))
     return arrayInsertionPoint, interpVal
+
+def windowDiscard(seq, stepSize, windowSize):
+    """Iterate and window sequence based on stepSize"""
+    # TODO: Make an iterator-compatible (faster) version
+    lenX = len(seq)
+    for i in range(0, lenX, stepSize):
+        if i+windowSize > lenX:
+            break
+        yield seq[i:i+windowSize]
