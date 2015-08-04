@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 __author__ = 'Jon'
 
-from timedomainextractor import TimeDomainExtractor
 import numpy
-import enums
-from cleverthumbnailer.mathtools import interpMean
+
+from timedomainextractor import TimeDomainExtractor
+from cleverthumbnailer.mathtools import interpMean, interpStats
+
 
 class LoudnessExtractor(TimeDomainExtractor):
     """Process and store the windowed RMS of a signal.
@@ -17,11 +18,13 @@ class LoudnessExtractor(TimeDomainExtractor):
 
     """
 
-    def __init__(self, sr):
+    def __init__(self, sr, blockSize=1024, stepSize=1024):
         super(LoudnessExtractor, self).__init__(sr)
         self._features = []
         self._currentsample = 0
         self._finishedVals = []
+        self._blockSize = blockSize
+        self._stepSize = stepSize
 
     @property
     def blockSize(self):
@@ -44,6 +47,9 @@ class LoudnessExtractor(TimeDomainExtractor):
     def getMean(self, minSample, maxSample):
         # get mean windowed RMS between min and max samples
         return interpMean(self._features, minSample, maxSample)
+
+    def getStats(self, minSample, maxSample):
+        return interpStats(self._features, minSample, maxSample)
 
     def getMeanInSeconds(self, minSeconds, maxSeconds):
         return interpMean(self._features, self.secsToSamples(minSeconds), self.secsToSamples(maxSeconds))

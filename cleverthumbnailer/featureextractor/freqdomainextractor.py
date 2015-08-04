@@ -1,8 +1,10 @@
 __author__ = 'jont'
 
 from numpy.fft import fft
-from enums import BlockDomain
+
+from cleverthumbnailer.enums import BlockDomain
 from febase import GenericExtractor
+
 
 class FrequencyDomainExtractor(GenericExtractor):
 

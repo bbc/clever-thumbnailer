@@ -51,7 +51,7 @@ class ApplauseExtractor(FrequencyDomainExtractor):
         self.movingAverageBuffer.append(spectralCrestFactor)    # add SCF to buffer
         self._crestWave.append(spectralCrestFactor)
         bufferMean = self.calculateBufferMean()
-        newState = self.applauseDetection(bufferMean)   # see if we have a new feature (speech/music) for current buffer
+        newState = self._applauseDetection(bufferMean)   # see if we have a new feature (speech/music) for current buffer
         if newState is not None:
             self._features.append((newState, timestamp)) # record state and time of new feature
             self._logger.debug('New Event: {0} at time {1}'.format(newState, timestamp))
@@ -60,7 +60,7 @@ class ApplauseExtractor(FrequencyDomainExtractor):
         self._logger.debug('processRemaining() called but nothing to do.')
         pass
 
-    def applauseDetection(self, frame):
+    def _applauseDetection(self, frame):
         threshold = self.threshold
         hysteresis = self.hysteresis
         lthresh = threshold-(hysteresis/2)
@@ -75,6 +75,32 @@ class ApplauseExtractor(FrequencyDomainExtractor):
                 self._currentApplauseState = ApplauseState.music
                 return self._currentApplauseState
         return None
+
+    def getStateAtSample(self, sample):
+        position = numpy.searchsorted([feature[0] for feature in self._features], sample, side='right') - 1
+        if position < 0:
+            position = 0    # deals with the case that sample lands exactly or before on the first feature
+        assert position >= 0
+        assert position < len(self._features)
+        return self._features[position], position
+
+    def checkApplause(self, startSample, endSample):
+        """Check to see if any occurrences of applause occur in a particular region
+        Args:
+            startSample(int): the start point of the region to check
+            endSample(int): the end point of the region to check
+        Returns:
+            applauseOccurred(boolean): True if applause was detected
+        """
+        _, startIndex = self.getStateAtSample(startSample)
+        _, endIndex = self.getStateAtSample(endSample)
+        for feature in self._features[startIndex:endIndex]:
+            _, featureType = feature    # unbundle feature
+            if featureType is ApplauseState.applause:
+                return True
+        return False
+
+
 
 def spectralCrest(freqDomainFrame):
     """Calculate the crest factory of a block of audio

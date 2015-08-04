@@ -9,7 +9,10 @@ from audioanalyser import AudioAnalyser
 from ConfigParser import ConfigParser
 from cleverthumbnailer.exceptions import FileNotFoundException
 from ctconstants import _CONFIGFILE, _DESCRIPTION, _PROG
+import logging
 
+logging.basicConfig()
+_logger = logging.getLogger()
 
 def main(args, configFile):
     """Main routine to launch and run CleverThumbnailer
@@ -29,7 +32,18 @@ def main(args, configFile):
 
     config = getConfig(configFile)
     parsedArgs = parseArgs(args, dict(config.items('DEFAULTS')))
+
+    if parsedArgs.verbose == 0:
+        _logger.setLevel(logging.WARN)
+    elif parsedArgs.verbose == 1:
+        _logger.setLevel(logging.INFO)
+    elif parsedArgs.verbose >= 2:
+        _logger.setLevel(logging.DEBUG)
+
     analyser = AudioAnalyser()
+    analyser.loadAudio(parsedArgs.input)
+    analyser.processAll()
+    print(analyser.thumbnail)
 
     return 0  # success exit code
 
@@ -123,5 +137,4 @@ if __name__ == '__main__':
 
     config = getConfig(_CONFIGFILE)
     print os.getcwd()
-    parseArgs('test/resources/test.wav'.split(),
-              dict(config.items('DEFAULTS')))
+    main(sys.argv[1:], 'config.ini')

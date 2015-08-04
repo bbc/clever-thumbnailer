@@ -2,7 +2,6 @@
 __author__ = 'Jon'
 """Audio feature extraction classes for use with BBC audio thumbnail chooser application"""
 
-from enums import BlockDomain
 from febase import GenericExtractor
 from loudnessextractor import LoudnessExtractor
 from constqsegmentextractor import ConstQSegmentExtractor

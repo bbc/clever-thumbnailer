@@ -1,6 +1,6 @@
 __author__ = 'jont'
 from febase import GenericExtractor
-from enums import BlockDomain
+from cleverthumbnailer.enums import BlockDomain
 
 class TimeDomainExtractor(GenericExtractor):
 

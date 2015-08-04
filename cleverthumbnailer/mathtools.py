@@ -35,7 +35,7 @@ def interpolate(XY1, XY2, interX):
     interY = (ratio * yDiff * 1.0) + Y1
     return interX, interY
 
-def interpMean(sampledXYArray, startX, endX):
+def interpStats(sampledXYArray, startX, endX):
     """Return the mean of a linearly interpolated XY array between a start and end point.
 
     Given an array of of XY coordinates, this function calculates the mean value between two values of X.
@@ -59,8 +59,17 @@ def interpMean(sampledXYArray, startX, endX):
     # transpose array so we can manipulate it
     signalX, signalY = numpy.transpose(signalWithInterpolatedPoints)
     xDiff = signalX[-1] - signalX[0]
+
     # return the mean (definite integral / difference in X)
-    return numpy.trapz(signalY, signalX)/xDiff
+    meanVal = numpy.trapz(signalY, signalX)/xDiff
+    minY = numpy.min(signalY)
+    maxY = numpy.max(signalY)
+
+    return meanVal, minY, maxY
+
+def interpMean(sampledXYArray, startX, endX):
+    meanVal, _, _ = interpStats(sampledXYArray, startX, endX)
+    return meanVal
 
 def searchAndInterpolate(sampledXYArray, sample, side='left'):
     """Find the amplitude of a particular sample, given an undersampled array of values, using interpolation"""
@@ -83,3 +92,25 @@ def windowDiscard(seq, stepSize, windowSize):
         if i+windowSize > lenX:
             break
         yield seq[i:i+windowSize]
+
+def coerceThumbnail(start, end, songLength):
+    """Move thumbnail to within song range.
+    Args:
+        start(int): thumbnail start time in samples
+        end(int): thumbnail end time in samples
+        songLength(int): song length in samples
+    Returns:
+        tuple(start, end): new thumbnail
+    """
+    assert (end-start) <= songLength
+
+    if end > songLength:
+        overFlow = end - songLength
+        start -= overFlow
+        end -= overFlow
+
+    if start < 0:
+        end += -1*start
+        start = 0
+
+    return start, end   #TODO: check

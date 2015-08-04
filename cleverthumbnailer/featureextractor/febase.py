@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 __author__ = 'Jon'
 
-import enums
-from cleverthumbnailer.mathtools import windowDiscard
-from enums import BlockDomain
 import numpy
+
+from cleverthumbnailer.mathtools import windowDiscard
+
 
 class GenericExtractor(object):
     """Base class for several audio feature extraction algorithms.
@@ -41,12 +41,12 @@ class GenericExtractor(object):
         self._done = False
 
     def processAllAudio(self, audioSamples):
-        """Process stream of audio based on list (frames)""" #TODO: Expand docstring
+        """Process stream of audio based on list (frames)"""
+        #TODO: Expand docstring
         assert numpy.ndim(audioSamples) == 1
         for i, frame in enumerate(windowDiscard(audioSamples, self.stepSize, self.blockSize)):
             self.processTimeDomainFrame(frame, i*self.stepSize)
         self.processRemaining()
-        return self.features
 
     def processTimeDomainFrame(self, *args, **kwargs):
         """Process time domain audio frame"""
@@ -67,7 +67,7 @@ class GenericExtractor(object):
         Calling function will cause analysis to use information gathered from frames so far analysed. processRemaining()
         should usually be called after processing all audio frames using processFrames().
         """
-        self._done = True
+        raise NotImplementedError
 
     @property
     def blockSize(self):
@@ -80,6 +80,11 @@ class GenericExtractor(object):
     @property
     def frameDomain(self):
         raise NotImplementedError()
+
+    @property
+    def done(self):
+        return self._done
+
 
     @property
     def features(self):

@@ -3,8 +3,10 @@ __author__ = 'Jon'
 
 import qmsegmenter
 from timedomainextractor import TimeDomainExtractor
-from enums import BlockDomain
 from cleverthumbnailer.segment import Segment
+
+import logging
+
 
 
 class ConstQSegmentExtractor(TimeDomainExtractor):
@@ -23,13 +25,20 @@ class ConstQSegmentExtractor(TimeDomainExtractor):
             segmentTypes (Optional[int]): desired number of target segment types. Defaults to 4.
 
         """
+        self._logger = logging.getLogger(__name__)
         super(ConstQSegmentExtractor, self).__init__(sr)
         self.neighbourhoodLimit = neighbourhoodLimit
         self.segmentTypes = segmentTypes
         # create new QM segmenter instance
         self.qmsegmenter = qmsegmenter.ClusterMeltSegmenter(self.makeParams())
         self.qmsegmenter.initialise(sr)                 # initialise instance
+        self._logger.debug('Segmenter initialised with block size {0} and step size {1}, sample rate {2}.'.format(
+            self.blockSize,
+            self.stepSize,
+            self.segmentSampleRate
+        ))
         self._segInfo = None
+        self._features = []
 
     @property
     def segmentSampleRate(self):
@@ -44,11 +53,6 @@ class ConstQSegmentExtractor(TimeDomainExtractor):
             return int(self._segInfo.nsegtypes)
         except AttributeError:
             return None
-
-    @property
-    def features(self):
-        for feature in self._segInfo.segments:
-            yield Segment(int(feature.start), int(feature.end), int(feature.type))
 
     def processFrame(self, frame, timestamp=None):
         """Process a single frame of input signal using feature extraction algorithm
@@ -66,6 +70,10 @@ class ConstQSegmentExtractor(TimeDomainExtractor):
         self.qmsegmenter.segment(self.segmentTypes)     # perform segmentation using QM DSP segmenter
         # now fetch all of our features
         self._segInfo = self.qmsegmenter.getSegmentation()
+        for i, feature in enumerate(self._segInfo.segments):
+            newSegment = Segment(int(feature.start), int(feature.end), int(feature.type))
+            self._features.append(newSegment)
+            self._logger.debug('Found segment #{0}: {1}'.format(i, newSegment))
         self._done = True                               # state flag to allow us to
 
     @property
