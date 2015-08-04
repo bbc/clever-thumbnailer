@@ -1,5 +1,3 @@
-__author__ = 'jont'
-
 import numpy
 import wave
 

@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-__author__ = 'Jon'
-
 import numpy
 
 from cleverthumbnailer.mathtools import windowDiscard
@@ -28,24 +25,28 @@ class GenericExtractor(object):
         Raises:
             TypeError: If `sr` is not a positive whole number
         """
-        try:                                            # test for positive integer
+        try:  # test for positive integer
             assert sr >= 0
-            assert (sr*1.0).is_integer()
+            assert (sr * 1.0).is_integer()
         except (TypeError, AssertionError, AttributeError):
             raise TypeError('Sample Rate sr must be a positive integer')
 
-        # set attributes
         self.sr = sr
         self._features = None
-        # set state
         self._done = False
 
     def processAllAudio(self, audioSamples):
-        """Process stream of audio based on list (frames)"""
-        #TODO: Expand docstring
+        """Process stream of audio based on list (frames)
+
+        Args:
+            audioSamples(list): 1D list of audio samlpes for input
+
+        """
+
         assert numpy.ndim(audioSamples) == 1
-        for i, frame in enumerate(windowDiscard(audioSamples, self.stepSize, self.blockSize)):
-            self.processTimeDomainFrame(frame, i*self.stepSize)
+        for i, frame in enumerate(
+                windowDiscard(audioSamples, self.stepSize, self.blockSize)):
+            self.processTimeDomainFrame(frame, i * self.stepSize)
         self.processRemaining()
 
     def processTimeDomainFrame(self, *args, **kwargs):
@@ -85,13 +86,12 @@ class GenericExtractor(object):
     def done(self):
         return self._done
 
-
     @property
     def features(self):
         return self._features
 
     def secsToSamples(self, secs):
-        return secs*self.sr
+        return secs * self.sr
 
     @property
     def frameDomain(self):

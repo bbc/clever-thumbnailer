@@ -9,7 +9,7 @@ setup(name='cleverthumbnailer',
           'console_scripts': [
               'cleverthumbnailer =  cleverthumbnailer.__main__:main'
           ]
-      }
+      }, requires=['numpy']
       classifiers=[
           'Development Status :: 1 - Planning',
           'Environment :: Console',

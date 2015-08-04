@@ -2,12 +2,12 @@ from unittest import TestCase
 from cleverthumbnailer.__main__ import main, parseArgs, getConfig
 from cleverthumbnailer import exceptions
 from ConfigParser import NoSectionError
-from cleverthumbnailer.ctconstants import _CONFIGFILE, _DESCRIPTION, _PROG
+from cleverthumbnailer.ctconstants import CONFIGFILE, DESCRIPTION, PROG
 import os
 from mock import MagicMock
 
 __author__ = 'jont'
-_VALIDCONFIG = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', _CONFIGFILE))
+_VALIDCONFIG = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', CONFIGFILE))
 
 class TestMain(TestCase):
     validArgs = 'resources/test.wav'.split()

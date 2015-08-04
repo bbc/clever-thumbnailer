@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-__author__ = 'Jon'
-"""Audio feature extraction classes for use with BBC audio thumbnail chooser application"""
+"""Audio feature extraction classes for use with BBC audio thumbnail chooser
+application"""
 
 from febase import GenericExtractor
 from loudnessextractor import LoudnessExtractor

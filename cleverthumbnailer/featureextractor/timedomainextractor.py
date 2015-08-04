@@ -1,4 +1,3 @@
-__author__ = 'jont'
 from febase import GenericExtractor
 from cleverthumbnailer.enums import BlockDomain
 

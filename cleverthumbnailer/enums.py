@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-from enum import Enum
-
-__author__ = 'Jon'
 """Container for feature extractor enums"""
 
 import enum
@@ -13,5 +9,6 @@ class BlockDomain(enum.Enum):
 
 
 class AnalysisBehaviour(Enum):
+    """Possible thumbnailer behaviours."""
     LOUDNESS = 0
     DYNAMIC = 1

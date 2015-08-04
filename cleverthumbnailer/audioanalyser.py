@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Class to undertaken audio feature analysis"""
 from math import floor
 import logging
@@ -7,6 +6,7 @@ from cleverthumbnailer.enums import AnalysisBehaviour as Behaviour
 from featureextractor import ConstQSegmentExtractor, LoudnessExtractor, ApplauseExtractor
 from mathtools import coerceThumbnail
 from audiodata import AudioData
+
 _logger = logging.getLogger(__name__)
 
 class AudioAnalyser(object):

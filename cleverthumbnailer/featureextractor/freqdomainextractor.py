@@ -1,5 +1,3 @@
-__author__ = 'jont'
-
 from numpy.fft import fft
 
 from cleverthumbnailer.enums import BlockDomain
@@ -13,4 +11,5 @@ class FrequencyDomainExtractor(GenericExtractor):
         return BlockDomain.frequency
 
     def processTimeDomainFrame(self, samples, timestamp, *args, **kwargs):
+        # TODO: Test
         return self.processFrame(fft(samples), timestamp, *args, **kwargs)

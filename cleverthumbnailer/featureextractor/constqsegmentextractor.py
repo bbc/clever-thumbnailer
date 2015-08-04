@@ -1,29 +1,28 @@
-#!/usr/bin/env python
-__author__ = 'Jon'
+import logging
 
 import qmsegmenter
 from timedomainextractor import TimeDomainExtractor
 from cleverthumbnailer.segment import Segment
 
-import logging
-
-
 
 class ConstQSegmentExtractor(TimeDomainExtractor):
     """Wrapper for QM DSP Constant-Q Segmenter_ algorithm.
 
-    Analyzes audio and creates a candidate set of musical sections, described by type and timestamp. Such sections
-    may resemble 'chorus', 'bridge', 'verse', and are calculated based on musical similarity metrics.
+    Analyzes audio and creates a candidate set of musical sections, described
+    by type and timestamp. Such sections may resemble 'chorus', 'bridge',
+    'verse', and are calculated based on musical similarity metrics.
 
     _Segmenter: https://code.soundsoftware.ac.uk/projects/qm-dsp
     """
+
     def __init__(self, sr, neighbourhoodLimit=4, segmentTypes=4):
         """
         Args:
             sr (int): required sample rate to work at
-            neighbourhoodLimit (Optional[float]): minimum length of segment (in seconds). Defaults to 1s
-            segmentTypes (Optional[int]): desired number of target segment types. Defaults to 4.
-
+                neighbourhoodLimit (Optional[float]): minimum length of segment
+                (in seconds). Defaults to 1s
+            segmentTypes (Optional[int]): desired number of target segment
+                types. Defaults to 4.
         """
         self._logger = logging.getLogger(__name__)
         super(ConstQSegmentExtractor, self).__init__(sr)
@@ -31,14 +30,68 @@ class ConstQSegmentExtractor(TimeDomainExtractor):
         self.segmentTypes = segmentTypes
         # create new QM segmenter instance
         self.qmsegmenter = qmsegmenter.ClusterMeltSegmenter(self.makeParams())
-        self.qmsegmenter.initialise(sr)                 # initialise instance
-        self._logger.debug('Segmenter initialised with block size {0} and step size {1}, sample rate {2}.'.format(
-            self.blockSize,
-            self.stepSize,
-            self.segmentSampleRate
-        ))
+        self.qmsegmenter.initialise(sr)  # initialise instance
+        self._logger.debug(
+            'Segmenter initialised with block size {0} and step size {1}' + \
+            'sample rate {2}.'.format(
+                self.blockSize,
+                self.stepSize,
+                self.segmentSampleRate
+            ))
         self._segInfo = None
         self._features = []
+
+
+    def processFrame(self, frame, timestamp=None):
+        """Process a single frame of input signal using feature extraction
+        algorithm.
+
+        Args:
+            frame (complex array): data for one audio frame for processing,
+            in frequency domain
+        """
+        self.qmsegmenter.extractFeatures(
+            frame)  # pass frame to QM segmenter for processing
+
+    def processRemaining(self):
+        """Calculate any remaining audio features after processing each frame.
+
+        Calling function will cause analysis to use information gathered from
+        frames so far analysed. processRemaining() should usually be called
+        after processing all audio frames using processFrames().
+        """
+
+        # perform segmentation using QM DSP segmenter
+        self.qmsegmenter.segment(self.segmentTypes)
+        # now fetch all of our features
+        self._segInfo = self.qmsegmenter.getSegmentation()
+
+        for i, feature in enumerate(self._segInfo.segments):
+            newSegment = Segment(
+                int(feature.start), int(feature.end), int(feature.type))
+            self._features.append(newSegment)
+            self._logger.debug('Found segment #{0}: {1}'.format(i, newSegment))
+        # state flag to allow us to
+        self._done = True
+
+    def makeParams(self):
+        """Create default set of parameters for segmenter plugin.
+
+        Returns:
+            params(ClusterMeltSegmenterParams): set of default parameters
+
+        """
+
+        params = qmsegmenter.ClusterMeltSegmenterParams()
+        # set feature type to Hybrid (Const Q) --- our chosen approach
+        params.featureType = qmsegmenter.FEATURE_TYPE_CONSTQ
+        # internal QM DSP parameter for frequency bins
+        params.nComponents = 20
+        # configure neighbourhood limit in samples, and pad slightly
+        params.neighbourhoodLimit = int(
+            self.neighbourhoodLimit / params.hopSize + 0.0001)
+        return params
+
 
     @property
     def segmentSampleRate(self):
@@ -54,42 +107,12 @@ class ConstQSegmentExtractor(TimeDomainExtractor):
         except AttributeError:
             return None
 
-    def processFrame(self, frame, timestamp=None):
-        """Process a single frame of input signal using feature extraction algorithm
-        Args:
-            frame (complex array): data for one audio frame for processing, in frequency domain
-        """
-        self.qmsegmenter.extractFeatures(frame)         # pass frame to QM segmenter for processing
-
-    def processRemaining(self):
-        """Calculate any remaining audio features after processing each frame.
-
-        Calling function will cause analysis to use information gathered from frames so far analysed. processRemaining()
-        should usually be called after processing all audio frames using processFrames().
-        """
-        self.qmsegmenter.segment(self.segmentTypes)     # perform segmentation using QM DSP segmenter
-        # now fetch all of our features
-        self._segInfo = self.qmsegmenter.getSegmentation()
-        for i, feature in enumerate(self._segInfo.segments):
-            newSegment = Segment(int(feature.start), int(feature.end), int(feature.type))
-            self._features.append(newSegment)
-            self._logger.debug('Found segment #{0}: {1}'.format(i, newSegment))
-        self._done = True                               # state flag to allow us to
-
     @property
     def blockSize(self):
-        return self.qmsegmenter.getWindowsize()         # get desired window (block) size from QM segmenter instance
+        # get desired window (block) size from QM segmenter instance
+        return self.qmsegmenter.getWindowsize()
 
     @property
     def stepSize(self):
-        return self.qmsegmenter.getHopsize()            # get desired hop size from QM segmenter instance
-
-
-
-    def makeParams(self):
-        params = qmsegmenter.ClusterMeltSegmenterParams()
-        params.featureType = qmsegmenter.FEATURE_TYPE_CONSTQ        # set feature type to Hybrid (Const Q) --- our chosen approach
-        params.nComponents = 20                         # internal QM DSP parameter for frequency bins
-        # configure neighbourhood limit in samples, and pad slightly
-        params.neighbourhoodLimit = int(self.neighbourhoodLimit / params.hopSize + 0.0001)
-        return params
+        # get desired hop size from QM segmenter instance
+        return self.qmsegmenter.getHopsize()

@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-
-__author__ = 'Jon'
 import numpy
 
 def interpolate(XY1, XY2, interX):

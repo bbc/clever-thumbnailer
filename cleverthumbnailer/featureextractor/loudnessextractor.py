@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-__author__ = 'Jon'
-
 import numpy
 
 from timedomainextractor import TimeDomainExtractor
@@ -14,14 +11,14 @@ class LoudnessExtractor(TimeDomainExtractor):
         blockSize (int): Size of RMS window
         stepSize (int): Size of RMS step
         frameDomain (BlockDomain):
-        features (np.array): Array of block RMS values.
+        features (list): Array of block RMS values.
 
     """
 
     def __init__(self, sr, blockSize=1024, stepSize=1024):
         super(LoudnessExtractor, self).__init__(sr)
         self._features = []
-        self._currentsample = 0
+        self._currentSample = 0
         self._finishedVals = []
         self._blockSize = blockSize
         self._stepSize = stepSize
@@ -36,22 +33,39 @@ class LoudnessExtractor(TimeDomainExtractor):
 
     def processFrame(self, frame, timestamp=None):
         # don't worry about frame size; just process anyway
-        framevals = numpy.asarray(frame)
-        rms = numpy.sqrt(numpy.mean(numpy.square(framevals)))
-        self._features.append((self._currentsample, rms))   # append tuple of current sample and RMS
-        self._currentsample += len(frame) #
+        frameVals = numpy.asarray(frame)
+        rms = numpy.sqrt(numpy.mean(numpy.square(frameVals)))
+        # append tuple of current sample and RMS
+        self._features.append((self._currentSample, rms))
+        self._currentSample += len(frame)
 
     def processRemaining(self):
         self._done = True
 
     def getMean(self, minSample, maxSample):
-        # get mean windowed RMS between min and max samples
+        """Get the mean RMS value of a piece of audio
+
+        Args:
+            minSample: start time in samples
+            maxSample: end time in samples
+
+        Returns:
+            mean (float): interpolated mean of audio extract RMS
+
+        """
         return interpMean(self._features, minSample, maxSample)
 
     def getStats(self, minSample, maxSample):
+        """Get the mean, min, and max RMS values of a piece of audio
+
+        Args:
+            minSample: start time in samples
+            maxSample: end time in samples
+
+        Returns:
+            mean (float): interpolated mean of audio extract RMS
+            min (float): minimum windowed RMS value of extract
+            max (float): maximum windowed RMS value of extract
+
+        """
         return interpStats(self._features, minSample, maxSample)
-
-    def getMeanInSeconds(self, minSeconds, maxSeconds):
-        return interpMean(self._features, self.secsToSamples(minSeconds), self.secsToSamples(maxSeconds))
-
-

@@ -1,18 +1,16 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-__author__ = 'jont'
-
 import sys
 import os
 import argparse
-from audioanalyser import AudioAnalyser
 from ConfigParser import ConfigParser
-from cleverthumbnailer.exceptions import FileNotFoundException
-from ctconstants import _CONFIGFILE, _DESCRIPTION, _PROG
 import logging
+
+from audioanalyser import AudioAnalyser
+from cleverthumbnailer.exceptions import FileNotFoundException
+from ctconstants import CONFIGFILE, DESCRIPTION, PROG
 
 logging.basicConfig()
 _logger = logging.getLogger()
+
 
 def main(args, configFile):
     """Main routine to launch and run CleverThumbnailer
@@ -30,8 +28,8 @@ def main(args, configFile):
     if not os.path.isfile(configFile):
         raise FileNotFoundException('Config file not found')
 
-    config = getConfig(configFile)
-    parsedArgs = parseArgs(args, dict(config.items('DEFAULTS')))
+    thumbnailerConfig = getConfig(configFile)
+    parsedArgs = parseArgs(args, dict(thumbnailerConfig.items('DEFAULTS')))
 
     if parsedArgs.verbose == 0:
         _logger.setLevel(logging.WARN)
@@ -49,9 +47,9 @@ def main(args, configFile):
 
 
 def getConfig(configFile):
-    config = ConfigParser()
-    config.read(configFile)
-    return config
+    newConfig = ConfigParser()
+    newConfig.read(configFile)
+    return newConfig
 
 
 def parseArgs(cmdargs, defaults):
@@ -65,7 +63,7 @@ def parseArgs(cmdargs, defaults):
         SystemExit: if arguments are not syntactically valid
     """
 
-    p = argparse.ArgumentParser(prog=_PROG, description=_DESCRIPTION)
+    p = argparse.ArgumentParser(prog=PROG, description=DESCRIPTION)
     p.add_argument(
         'input',
         help='WAVE / BWF file for processing',
@@ -86,7 +84,7 @@ def parseArgs(cmdargs, defaults):
         default=(
             float(defaults['fadein']), float(defaults['fadeout'])
         ),
-        )
+    )
     p.add_argument(
         '-c',
         '--crop',
@@ -97,7 +95,7 @@ def parseArgs(cmdargs, defaults):
         default=(
             float(defaults['cropstart']), float(defaults['cropend'])
         ),
-        )
+    )
 
     p.add_argument(
         '-l',
@@ -107,10 +105,11 @@ def parseArgs(cmdargs, defaults):
         type=float,
         metavar='seconds',
         default=float(defaults['thumbnaillength']),
-        )
+    )
     p.add_argument(
         '-d', '--dynamic',
-        help='Whether to use dynamic or loudest (default) metric for choosing segments',
+        help='Whether to use dynamic or loudest (default) metric for ' + \
+    'choosing segments',
         action='store_true')
     p.add_argument(
         '-n',
@@ -125,16 +124,10 @@ def parseArgs(cmdargs, defaults):
         metavar='wavfile')
 
     # parse args and throw SystemExit if invalid
-
     return p.parse_args(cmdargs)
 
 
 if __name__ == '__main__':
-
-    # main(sys.argv[1:])
-    # main('test.wav'.split(), _CONFIGFILE)
-    # main('-f 10 0 -c 1 2 -l 60 --dynamic --noapplause -o test_out.wav test.wav'.split())
-
-    config = getConfig(_CONFIGFILE)
+    config = getConfig(CONFIGFILE)
     print os.getcwd()
     main(sys.argv[1:], 'config.ini')

@@ -1,7 +1,13 @@
-__author__ = 'jont'
-
 class Segment(object):
+    """Class to contain information to do with one musical segment of a song,
+    as used by CleverThumbnailer"""
     def __init__(self, start, end, type):
+        """
+        Args:
+            start (int): segment start time in (nominally in samples)
+            end (int): segment end time (nominally in samples)
+            type (int): enumerated segment 'type'
+        """
         self.start = start
         self.end = end
         self.type = type
