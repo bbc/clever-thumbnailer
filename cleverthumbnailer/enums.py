@@ -8,7 +8,7 @@ class BlockDomain(enum.Enum):
     frequency = 2
 
 
-class AnalysisBehaviour(Enum):
+class AnalysisBehaviour(enum.Enum):
     """Possible thumbnailer behaviours."""
     LOUDNESS = 0
     DYNAMIC = 1
