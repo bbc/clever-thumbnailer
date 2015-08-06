@@ -1,4 +1,3 @@
-"""Class to undertaken audio feature analysis"""
 from math import floor
 import logging
 
@@ -8,12 +7,13 @@ from mathtools import coerceThumbnail
 from audiodata import AudioData
 
 _logger = logging.getLogger(__name__)
-
 class AudioAnalyser(object):
-    _FEATUREEXTRACTORS = (ConstQSegmentExtractor, LoudnessExtractor, ApplauseExtractor)
+    """Audio feature analyser and thumbnail generator
+
+
+    """
+    _FEATUREEXTRACTORS = (LoudnessExtractor, ApplauseExtractor, ConstQSegmentExtractor)
     def __init__(self, fade=(0.5,0.5), crop=(7,7), length=30, dynamic=False, applause=True):
-        self.fadeTimesInSeconds = fade   # in seconds
-        self.cropLengthsInSeconds = crop  # in seconds
         self.thumbLengthInSeconds = length   # in seconds
         self.behaviour = Behaviour.DYNAMIC if dynamic else Behaviour.LOUDNESS
         self.loaded = False
@@ -21,29 +21,25 @@ class AudioAnalyser(object):
         self.thumbnailed = False
         self.applause = applause
         self.audio = None
-        self.segmentExtractor = None
-        self.loudnessExtractor = None
-        self.applauseExtractor = None
         self.features = None
         self._thumbnail = None
         self._dumbNail = None   # 'Dumb' thumbnail that takes middle section of piece
+        self._featureExtractors = None
 
     def loadAudio(self, fileName):
+        """Load audio file into AudioAnalyser and instantiate feature
+        extractors.
+
+        Args:
+            fileName (str): File to be loaded into audio analyser
+
+        """
+
+        _logger.debug('Loading file {0}'.format(fileName))
+
+        # load data and raise errors if incorrect
         self.audio = AudioData(fileName)
         self.loaded = True
-
-        # initialise feature extractors
-        self.loudnessExtractor = LoudnessExtractor(self.audio.sr)   #TODO: Add other params
-        self.applauseExtractor = ApplauseExtractor(self.audio.sr)
-        self.segmentExtractor = ConstQSegmentExtractor(self.audio.sr)
-
-    @property
-    def fadeTimeInSamples(self):
-        return tuple([self.inSamples(x) for x in self.fadeTimesInSeconds])
-
-    @property
-    def cropLengthsInSamples(self):
-        return tuple([self.inSamples(x) for x in self.cropLengthsInSeconds])
 
     @property
     def thumbLengthInSamples(self):
@@ -56,13 +52,17 @@ class AudioAnalyser(object):
     def processAll(self):
         """Process all audio according to feature extractor plugins"""
         if not self.loaded:
-            raise
-        self.loudnessExtractor.processAllAudio(self.audio.waveData) #TODO: Tidy into iterator
-        self.applauseExtractor.processAllAudio(self.audio.waveData)
-        self.segmentExtractor.processAllAudio(self.audio.waveData)
-        assert self.loudnessExtractor.features
-        assert self.applauseExtractor.features
-        assert self.segmentExtractor.features
+            raise AttributeError('No audio to process yet')
+
+        # initialise feature extractors from list (constant) to facilitate
+        # tests and make more modular
+        self._featureExtractors = tuple(
+            [fe() for fe in self._featureExtractors])
+
+        for fe in self._featureExtractors:
+            fe.processAllAudio(self.audio.waveData)
+            assert fe.features
+
         self.processed = True
         self._thumbnail = self._pickThumbnail()
 
@@ -70,7 +70,17 @@ class AudioAnalyser(object):
     def _pickThumbnail(self):
         assert self.loaded
         assert self.processed
-        segments = [segment for segment in self.segmentExtractor.features]  # copy out our segments
+
+
+        for fe in self._featureExtractors:
+            assert hasattr(fe, 'features')
+
+        # unpack extractors
+        loudnessExtractor, applauseExtractor, segmentExtractor = self._featureExtractors
+        assert hasattr(loudnessExtractor, 'getStats')
+        assert hasattr(applauseExtractor, 'checkApplause')
+
+        segments = [segment for segment in segmentExtractor.features]  # copy out our segments
 
         if len(segments) < 1:
             _logger.warn('No musical segments identified for use; reverting to extracting middle of audio. ')
@@ -78,15 +88,19 @@ class AudioAnalyser(object):
 
         for segment in segments:
             # get RMS loudness statistics for section
-            meanLoudness, minLoudness, maxLoudness = self.loudnessExtractor.getStats(segment.start, segment.end)
-            # store the correct metric for loudness of a segment: either greatest dynamic range, or mean RMS
-            segment.loudness = (maxLoudness - minLoudness) if self.behaviour is Behaviour.DYNAMIC else meanLoudness
-            # if we're analysing applause too, check each segment for presence of applause
+            try:
+                meanLoudness, minLoudness, maxLoudness = loudnessExtractor.getStats(segment.start, segment.end)
+                # store the correct metric for loudness of a segment: either greatest dynamic range, or mean RMS
+                segment.loudness = (maxLoudness - minLoudness) if self.behaviour is Behaviour.DYNAMIC else meanLoudness
+                # if we're analysing applause too, check each segment for presence of applause
             if self.applause:
-                segment.applause = self.applauseExtractor.checkApplause(segment.start, segment.end)
+                segment.applause = applauseExtractor.checkApplause(segment.start, segment.end)
 
         # take out sections with applause
-        validSections = [segment for segment in segments if not segment.applause]
+        if self.applause:
+            validSections = [segment for segment in segments if not segment.applause]
+        else:
+            validSection = segments
 
         # if there's applause in everything, revert back to all segments
         if len(validSections) < 1:
