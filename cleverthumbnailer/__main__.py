@@ -5,8 +5,9 @@ from ConfigParser import ConfigParser
 import logging
 
 from audioanalyser import AudioAnalyser
-from cleverthumbnailer.exceptions import FileNotFoundException
+from cleverthumbnailer.exceptions import FileNotFoundError
 from ctconstants import CONFIGFILE, DESCRIPTION, PROG
+from thumbnailcreator import createThumbnail
 
 logging.basicConfig()
 _logger = logging.getLogger()
@@ -25,11 +26,13 @@ def main(args, configFile):
         SystemExit: if exit is invalid
     """
 
+    # Check for config file
     if not os.path.isfile(configFile):
-        raise FileNotFoundException('Config file not found')
+        raise FileNotFoundError('Config file not found')
 
-    thumbnailerConfig = getConfig(configFile)
-    parsedArgs = parseArgs(args, dict(thumbnailerConfig.items('DEFAULTS')))
+    cfg = getConfig(configFile)
+    # Use argparse to parse commandline outputs and provide UI
+    parsedArgs = parseArgs(args, dict(cfg.items('DEFAULTS')))
 
     if parsedArgs.verbose == 0:
         _logger.setLevel(logging.WARN)
@@ -38,10 +41,34 @@ def main(args, configFile):
     elif parsedArgs.verbose >= 2:
         _logger.setLevel(logging.DEBUG)
 
-    analyser = AudioAnalyser()
+    # instantiate audioAnalyser, which will do all audio analysis
+    analyser = AudioAnalyser(
+        parsedArgs.fade,
+        parsedArgs.crop,
+        parsedArgs.length,
+        parsedArgs.dynamic,
+        not parsedArgs.noapplause
+    )
+    # load file
     analyser.loadAudio(parsedArgs.input)
+    # do all feature extraction
     analyser.processAll()
-    print(analyser.thumbnail)
+
+    thumbStart, thumbEnd = analyser.thumbnail
+    thumbStartInSeconds = analyser.inSeconds(thumbStart)
+    thumbEndInSeconds = analyser.inSeconds(thumbEnd)
+
+    # get output file name
+    outputFile = parsedArgs.output.name if parsedArgs.output else \
+        createOutputFileName(
+            parsedArgs.output.name,
+            cfg.get('IO', 'defaultoutputfileappend'))
+
+    # build a thumbnail
+    createThumbnail(parsedArgs.input.name,
+                    outputFile,
+                    thumbStartInSeconds,
+                    (thumbEndInSeconds - thumbStartInSeconds))
 
     return 0  # success exit code
 
@@ -126,6 +153,10 @@ def parseArgs(cmdargs, defaults):
     # parse args and throw SystemExit if invalid
     return p.parse_args(cmdargs)
 
+def createOutputFileName(inputFile, appendString):
+    if not appendString.isalnum():
+    noExt, ext = os.path.splitext(inputFile)
+    return ''.join(noExt, appendString, ext)
 
 if __name__ == '__main__':
     config = getConfig(CONFIGFILE)
