@@ -1,7 +1,7 @@
 from math import floor
 import logging
 
-from cleverthumbnailer.enums import AnalysisBehaviour as Behaviour
+from enums import AnalysisBehaviour as Behaviour
 from featureextractor import ConstQSegmentExtractor, LoudnessExtractor, ApplauseExtractor
 from mathtools import coerceThumbnail
 from audiodata import AudioData
@@ -57,7 +57,7 @@ class AudioAnalyser(object):
         # initialise feature extractors from list (constant) to facilitate
         # tests and make more modular
         self._featureExtractors = tuple(
-            [fe() for fe in self._featureExtractors])
+            [fe(self.audio.sr) for fe in self._FEATUREEXTRACTORS])
 
         for fe in self._featureExtractors:
             fe.processAllAudio(self.audio.waveData)
@@ -88,11 +88,10 @@ class AudioAnalyser(object):
 
         for segment in segments:
             # get RMS loudness statistics for section
-            try:
-                meanLoudness, minLoudness, maxLoudness = loudnessExtractor.getStats(segment.start, segment.end)
-                # store the correct metric for loudness of a segment: either greatest dynamic range, or mean RMS
-                segment.loudness = (maxLoudness - minLoudness) if self.behaviour is Behaviour.DYNAMIC else meanLoudness
-                # if we're analysing applause too, check each segment for presence of applause
+            meanLoudness, minLoudness, maxLoudness = loudnessExtractor.getStats(segment.start, segment.end)
+            # store the correct metric for loudness of a segment: either greatest dynamic range, or mean RMS
+            segment.loudness = (maxLoudness - minLoudness) if self.behaviour is Behaviour.DYNAMIC else meanLoudness
+            # if we're analysing applause too, check each segment for presence of applause
             if self.applause:
                 segment.applause = applauseExtractor.checkApplause(segment.start, segment.end)
 

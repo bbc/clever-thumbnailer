@@ -1,6 +1,6 @@
 import numpy
 
-from cleverthumbnailer.mathtools import windowDiscard
+from mathtools import windowDiscard
 
 
 class GenericExtractor(object):

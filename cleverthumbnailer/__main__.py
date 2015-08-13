@@ -5,15 +5,15 @@ from ConfigParser import ConfigParser
 import logging
 
 from audioanalyser import AudioAnalyser
-from cleverthumbnailer.exceptions import FileNotFoundError
+import ctexceptions
 from ctconstants import CONFIGFILE, DESCRIPTION, PROG
 from thumbnailcreator import createThumbnail
 
 logging.basicConfig()
 _logger = logging.getLogger()
+_CONFIGFILE = os.path.join(os.getcwd(), 'config.ini')
 
-
-def main(args, configFile):
+def main(args):
     """Main routine to launch and run CleverThumbnailer
 
     Args:
@@ -27,10 +27,11 @@ def main(args, configFile):
     """
 
     # Check for config file
-    if not os.path.isfile(configFile):
-        raise FileNotFoundError('Config file not found')
+    print(_CONFIGFILE)
+    if not os.path.isfile(_CONFIGFILE):
+        raise ctexceptions.FileNotFoundError('Config file not found')
 
-    cfg = getConfig(configFile)
+    cfg = getConfig(_CONFIGFILE)
     # Use argparse to parse commandline outputs and provide UI
     parsedArgs = parseArgs(args, dict(cfg.items('DEFAULTS')))
 
@@ -61,14 +62,15 @@ def main(args, configFile):
     # get output file name
     outputFile = parsedArgs.output.name if parsedArgs.output else \
         createOutputFileName(
-            parsedArgs.output.name,
+            parsedArgs.input.name,
             cfg.get('IO', 'defaultoutputfileappend'))
 
     # build a thumbnail
     createThumbnail(parsedArgs.input.name,
                     outputFile,
                     thumbStartInSeconds,
-                    (thumbEndInSeconds - thumbStartInSeconds))
+                    (thumbEndInSeconds - thumbStartInSeconds), 0.5) #TODO:
+                    # Fade time
 
     return 0  # success exit code
 
@@ -155,10 +157,10 @@ def parseArgs(cmdargs, defaults):
 
 def createOutputFileName(inputFile, appendString):
     if not appendString.isalnum():
-    noExt, ext = os.path.splitext(inputFile)
-    return ''.join(noExt, appendString, ext)
+        noExt, ext = os.path.splitext(inputFile)
+    return ''.join([noExt, appendString, ext])
 
 if __name__ == '__main__':
     config = getConfig(CONFIGFILE)
     print os.getcwd()
-    main(sys.argv[1:], 'config.ini')
+    main(sys.argv[1:])

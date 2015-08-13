@@ -1,6 +1,6 @@
 import numpy
 import wave
-from exceptions import FileFormatNotSupportedError
+import ctexceptions
 
 class AudioData(object):
     """Container for low level mono audio information and IO.
@@ -51,7 +51,7 @@ class AudioData(object):
             origType = numpy.int8
         elif self.bitDepth==2:
             origType = numpy.int16
-        else: raise FileFormatNotSupportedError('{0}-bit sample depth not supported'.format(
+        else: raise ctexceptions.FileFormatNotSupportedError('{0}-bit sample depth not supported'.format(
             self.bitDepth*8))
         wavType = numpy.dtype((origType,nchannels))
         self.npOut = numpy.frombuffer(w.readframes(self._length), dtype=wavType)

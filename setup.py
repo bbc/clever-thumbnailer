@@ -7,7 +7,7 @@ setup(
                 'longer audio tracks',
     author='Jon Tutcher',
     author_email='jon.tutcher@bbc.co.uk',
-    packages=['cleverthumbnailer'],
+    packages=['cleverthumbnailer', 'cleverthumbnailer.featureextractor'],
     entry_points={
         'console_scripts': [
             'cleverthumbnailer =  cleverthumbnailer.__main__:main'
@@ -16,7 +16,8 @@ setup(
     install_requires=[
         'numpy',
         'qmsegmenter',
-        'pysox'
+        'pysox',
+        'enum',
 
     ],
 

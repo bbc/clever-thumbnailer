@@ -1,5 +1,5 @@
 from febase import GenericExtractor
-from cleverthumbnailer.enums import BlockDomain
+from enums import BlockDomain
 
 class TimeDomainExtractor(GenericExtractor):
 

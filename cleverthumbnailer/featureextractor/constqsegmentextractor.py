@@ -1,9 +1,9 @@
 import logging
 
 import qmsegmenter
-from timedomainextractor import TimeDomainExtractor
-from cleverthumbnailer.segment import Segment
 
+from timedomainextractor import TimeDomainExtractor
+from segment import Segment
 
 class ConstQSegmentExtractor(TimeDomainExtractor):
     """Wrapper for QM DSP Constant-Q Segmenter_ algorithm.
