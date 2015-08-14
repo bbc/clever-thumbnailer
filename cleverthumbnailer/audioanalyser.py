@@ -60,6 +60,7 @@ class AudioAnalyser(object):
             [fe(self.audio.sr) for fe in self._FEATUREEXTRACTORS])
 
         for fe in self._featureExtractors:
+            _logger.info('Analysing using {0}'.format(type(fe).__name__))
             fe.processAllAudio(self.audio.waveData)
             assert fe.features
 

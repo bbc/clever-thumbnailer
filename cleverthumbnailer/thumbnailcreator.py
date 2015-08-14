@@ -1,7 +1,8 @@
 import os
-import exceptions
+import ctexceptions
 import pysox
 import logging
+import subprocess
 
 _logger = logging.getLogger(__name__)
 
@@ -21,11 +22,16 @@ def createThumbnail(inFile, outFile, startSeconds, durationSeconds, fade):
         inFile, outFile, fade, startSeconds, durationSeconds) )
 
     if not os.path.isfile(inFile):
-        raise exceptions.FileNotFoundError('Input file not found when '
+        raise ctexceptions.FileNotFoundError('Input file not found when '
                                                'creating thumbnail')
 
-    # don't worry about validation of start and end, as sox does this
-    app = pysox.CSoxApp(inFile, outFile,
-                        effectparams=[('trim', [startSeconds,
-                                                durationSeconds]), ])
-    app.flow()
+    s = ['sox', str(inFile), str(outFile), 'trim', str(startSeconds),
+         str(durationSeconds), 'fade', str(fade[0]), str(durationSeconds),
+         str(fade[1])]
+
+    try:
+        subprocess.call(s)
+    except subprocess.CalledProcessError:
+        _logger.error('Error using SoX to create thumbnail, using '
+                      'parameters: {0}'.format(s))
+        raise()

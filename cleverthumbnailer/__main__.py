@@ -6,12 +6,12 @@ import logging
 
 from audioanalyser import AudioAnalyser
 import ctexceptions
-from ctconstants import CONFIGFILE, DESCRIPTION, PROG
+from ctconstants import DESCRIPTION, APPNAME
 from thumbnailcreator import createThumbnail
+import configurator
 
 logging.basicConfig()
 _logger = logging.getLogger()
-_CONFIGFILE = os.path.join(os.getcwd(), 'config.ini')
 
 def main(args):
     """Main routine to launch and run CleverThumbnailer
@@ -27,15 +27,18 @@ def main(args):
     """
 
     # Check for config file
-    print(_CONFIGFILE)
-    if not os.path.isfile(_CONFIGFILE):
-        raise ctexceptions.FileNotFoundError('Config file not found')
 
-    cfg = getConfig(_CONFIGFILE)
+    cfg = configurator.getConfiguration()   # get or create configuration
+    defaultsConfig = dict(cfg.items('DEFAULTS'))
+    audioConfig = dict(cfg.items('AUDIO'))
+    ioConfig = dict(cfg.items('IO'))
+
     # Use argparse to parse commandline outputs and provide UI
-    parsedArgs = parseArgs(args, dict(cfg.items('DEFAULTS')))
+    parsedArgs = parseArgs(args, defaultsConfig)
 
-    if parsedArgs.verbose == 0:
+    if parsedArgs.quiet:
+        _logger.setLevel(logging.ERROR)
+    elif parsedArgs.verbose == 0:
         _logger.setLevel(logging.WARN)
     elif parsedArgs.verbose == 1:
         _logger.setLevel(logging.INFO)
@@ -43,6 +46,7 @@ def main(args):
         _logger.setLevel(logging.DEBUG)
 
     # instantiate audioAnalyser, which will do all audio analysis
+    _logger.info('Starting analyser')
     analyser = AudioAnalyser(
         parsedArgs.fade,
         parsedArgs.crop,
@@ -51,14 +55,20 @@ def main(args):
         not parsedArgs.noapplause
     )
     # load file
+    _logger.info('Loading audio')
     analyser.loadAudio(parsedArgs.input)
     # do all feature extraction
+    _logger.info('Processing audio')
     analyser.processAll()
+    _logger.info('Audio processed!')
 
     thumbStart, thumbEnd = analyser.thumbnail
     thumbStartInSeconds = analyser.inSeconds(thumbStart)
     thumbEndInSeconds = analyser.inSeconds(thumbEnd)
 
+    _logger.info('Creating thumbnail from {0}s to {1}s'.format(
+        thumbStartInSeconds, thumbEndInSeconds
+    ))
     # get output file name
     outputFile = parsedArgs.output.name if parsedArgs.output else \
         createOutputFileName(
@@ -66,20 +76,22 @@ def main(args):
             cfg.get('IO', 'defaultoutputfileappend'))
 
     # build a thumbnail
-    createThumbnail(parsedArgs.input.name,
-                    outputFile,
-                    thumbStartInSeconds,
-                    (thumbEndInSeconds - thumbStartInSeconds), 0.5) #TODO:
-                    # Fade time
+    try:
+        createThumbnail(
+            parsedArgs.input.name,
+            outputFile,
+            thumbStartInSeconds,
+            (thumbEndInSeconds - thumbStartInSeconds),
+            parsedArgs.fade,
+        )
+        _logger.info('Created thumbnail {0}'.format(outputFile))
+    except ctexceptions.SoXError:
+        _logger.error('Creation of thumbnail for {0} failed'.format(
+            parsedArgs.input.name))
+        return 1
 
+    _logger.info('Exiting...')
     return 0  # success exit code
-
-
-def getConfig(configFile):
-    newConfig = ConfigParser()
-    newConfig.read(configFile)
-    return newConfig
-
 
 def parseArgs(cmdargs, defaults):
     """
@@ -92,7 +104,7 @@ def parseArgs(cmdargs, defaults):
         SystemExit: if arguments are not syntactically valid
     """
 
-    p = argparse.ArgumentParser(prog=PROG, description=DESCRIPTION)
+    p = argparse.ArgumentParser(prog=APPNAME, description=DESCRIPTION)
     p.add_argument(
         'input',
         help='WAVE / BWF file for processing',
@@ -103,6 +115,12 @@ def parseArgs(cmdargs, defaults):
         '--verbose',
         help='Increase logging verbosity level',
         action='count')
+    p.add_argument(
+        '-q',
+        '--quiet',
+        help='Only print warnings and errors',
+        action='store_true',
+    )
     p.add_argument(
         '-f',
         '--fade',
@@ -161,6 +179,4 @@ def createOutputFileName(inputFile, appendString):
     return ''.join([noExt, appendString, ext])
 
 if __name__ == '__main__':
-    config = getConfig(CONFIGFILE)
-    print os.getcwd()
     main(sys.argv[1:])

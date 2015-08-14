@@ -3,3 +3,6 @@ class FileNotFoundError(Exception):
 
 class FileFormatNotSupportedError(Exception):
     pass
+
+class SoXError(Exception):
+    pass
