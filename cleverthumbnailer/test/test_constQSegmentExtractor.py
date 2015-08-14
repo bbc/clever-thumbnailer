@@ -1,6 +1,6 @@
 from unittest import TestCase
-from cleverthumbnailer.featureextractor.constqsegmentextractor import ConstQSegmentExtractor
-from cleverthumbnailer.audioanalyser import AudioData
+from featureextractor.constqsegmentextractor import ConstQSegmentExtractor
+from audioanalyser import AudioData
 __author__ = 'jont'
 _TESTWAVE = '/home/jont/Dropbox/BBC2/Projects/Thumbnailer/Applause/jazzon3_thenecks_30s_1.wav'
 

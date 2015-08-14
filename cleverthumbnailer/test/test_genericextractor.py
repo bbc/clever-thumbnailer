@@ -1,7 +1,7 @@
 __author__ = 'Jon'
 
 # import qmsegmenter
-from cleverthumbnailer.featureextractor import GenericExtractor
+from featureextractor import GenericExtractor
 from unittest import TestCase, main
 
 class TestGenericExtractor(TestCase):

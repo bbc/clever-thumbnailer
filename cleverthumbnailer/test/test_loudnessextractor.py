@@ -1,6 +1,6 @@
 __author__ = 'jont'
 from unittest import TestCase, main
-from cleverthumbnailer.featureextractor import LoudnessExtractor
+from featureextractor import LoudnessExtractor
 import numpy
 
 

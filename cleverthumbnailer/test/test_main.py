@@ -1,8 +1,7 @@
 from unittest import TestCase
-from cleverthumbnailer.__main__ import main, parseArgs, getConfig
-from cleverthumbnailer import exceptions
+from __main__ import main, parseArgs, getConfig
 from ConfigParser import NoSectionError
-from cleverthumbnailer.ctconstants import CONFIGFILE, DESCRIPTION, PROG
+from ctconstants import CONFIGFILE, DESCRIPTION, APPNAME
 import os
 from mock import MagicMock
 

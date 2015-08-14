@@ -1,6 +1,7 @@
 from unittest import TestCase
-from cleverthumbnailer.featureextractor.applauseextractor import ApplauseExtractor, ApplauseState
-from cleverthumbnailer.audioanalyser import AudioData
+from featureextractor.applauseextractor import ApplauseExtractor, \
+    ApplauseState
+from audioanalyser import AudioData
 import logging
 __author__ = 'jont'
 _TESTWAVE = '/home/jont/Dropbox/BBC2/Projects/Thumbnailer/Applause/3liveinconcert_nuovamusica_1.wav'
