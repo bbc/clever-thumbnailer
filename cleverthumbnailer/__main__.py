@@ -13,7 +13,9 @@ import configurator
 logging.basicConfig()
 _logger = logging.getLogger()
 
-def main(args):
+def main(args=None):
+    if not args:
+        args = sys.argv[1:]
     """Main routine to launch and run CleverThumbnailer
 
     Args:
@@ -148,7 +150,6 @@ def parseArgs(cmdargs, defaults):
         '-l',
         '--length',
         help='Thumbnail length (seconds)',
-        nargs=1,
         type=float,
         metavar='seconds',
         default=float(defaults['thumbnaillength']),

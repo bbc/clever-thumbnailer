@@ -10,15 +10,23 @@ setup(
     packages=['cleverthumbnailer', 'cleverthumbnailer.featureextractor'],
     entry_points={
         'console_scripts': [
-            'cleverthumbnailer =  cleverthumbnailer.__main__:main'
+            'cleverthumbnailer = cleverthumbnailer.__main__:main'
         ]
     },
     install_requires=[
         'numpy',
         'qmsegmenter',
-        'pysox',
+        'appdirs',
         'enum',
-
+        'logging',
+        'subprocess',
+        'math',
+        'sys',
+        'os',
+        'argparse',
+        'wave',
+        'collections',
+        'appdirs',
     ],
 
     classifiers=[
