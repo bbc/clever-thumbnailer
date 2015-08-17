@@ -1,6 +1,5 @@
 import os
 import ctexceptions
-import pysox
 import logging
 import subprocess
 
@@ -26,8 +25,9 @@ def createThumbnail(inFile, outFile, startSeconds, durationSeconds, fade):
                                                'creating thumbnail')
 
     s = ['sox', str(inFile), str(outFile), 'trim', str(startSeconds),
-         str(durationSeconds), 'fade', str(fade[0]), str(durationSeconds),
+         str(durationSeconds), 'fade', 't', str(fade[0]), str(durationSeconds),
          str(fade[1])]
+    _logger.debug('Calling sox with parameters: {0}'.format(' '.join(s)))
 
     try:
         subprocess.call(s)
