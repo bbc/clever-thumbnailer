@@ -1,6 +1,6 @@
 from numpy.fft import fft
 
-from enums import BlockDomain
+from ..enums import BlockDomain
 from febase import GenericExtractor
 
 

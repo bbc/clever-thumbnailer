@@ -3,7 +3,7 @@ import logging
 import qmsegmenter
 
 from timedomainextractor import TimeDomainExtractor
-from segment import Segment
+from ..segment import Segment
 
 class ConstQSegmentExtractor(TimeDomainExtractor):
     """Wrapper for QM DSP Constant-Q Segmenter_ algorithm.
@@ -32,8 +32,8 @@ class ConstQSegmentExtractor(TimeDomainExtractor):
         self.qmsegmenter = qmsegmenter.ClusterMeltSegmenter(self.makeParams())
         self.qmsegmenter.initialise(sr)  # initialise instance
         self._logger.debug(
-            'Segmenter initialised with block size {0} and step size {1}' + \
-            'sample rate {2}.'.format(
+            'Segmenter initialised with block size ' +
+            '{0} and step size {1}, sample rate {2}.'.format(
                 self.blockSize,
                 self.stepSize,
                 self.segmentSampleRate

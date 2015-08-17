@@ -1,7 +1,7 @@
 import numpy
 
 from timedomainextractor import TimeDomainExtractor
-from mathtools import interpMean, interpStats
+from ..mathtools import interpMean, interpStats
 
 
 class LoudnessExtractor(TimeDomainExtractor):
