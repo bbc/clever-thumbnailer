@@ -19,13 +19,8 @@ setup(
         'appdirs',
         'enum',
         'logging',
-        'subprocess',
-        'math',
-        'sys',
-        'os',
         'argparse',
         'wave',
-        'collections',
         'appdirs',
     ],
 

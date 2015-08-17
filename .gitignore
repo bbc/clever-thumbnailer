@@ -2,3 +2,6 @@
 /.idea
 
 cleverthumbnailer/test/resources
+build/
+dist/
+*.egg-info

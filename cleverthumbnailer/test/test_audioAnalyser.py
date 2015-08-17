@@ -11,6 +11,9 @@ class TestAudioAnalyser(TestCase):
 
         # we should only test the loadAudio procedure itself (not the
         # AudioData instantiator method)
+
+
+
         self.fail()
 
     @patch('cleverthumbnailer.audioanalyser.AudioData')
