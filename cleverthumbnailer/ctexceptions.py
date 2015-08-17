@@ -6,3 +6,6 @@ class FileFormatNotSupportedError(Exception):
 
 class SoXError(Exception):
     pass
+
+class NoFeaturesExtractedError(Exception):
+    pass

@@ -3,6 +3,7 @@ import logging
 
 from enums import AnalysisBehaviour as Behaviour
 from featureextractor import ConstQSegmentExtractor, LoudnessExtractor, ApplauseExtractor
+import ctexceptions
 from mathtools import coerceThumbnail
 from audiodata import AudioData
 
@@ -56,17 +57,26 @@ class AudioAnalyser(object):
 
         # initialise feature extractors from list (constant) to facilitate
         # tests and make more modular
+        try:
+            self._extractFeatures()
+            self._thumbnail = self._pickThumbnail()
+        except ctexceptions.NoFeaturesExtractedError as e:
+            _logger.warn(e.message)
+            _logger.info('Creating default thumbnail')
+            self._thumbnail = self.middleThumbNail
+
+        self.processed = True
+
+    def _extractFeatures(self):
         self._featureExtractors = tuple(
             [fe(self.audio.sr) for fe in self._FEATUREEXTRACTORS])
-
         for fe in self._featureExtractors:
             _logger.info('Analysing using {0}'.format(type(fe).__name__))
             fe.processAllAudio(self.audio.waveData)
-            assert fe.features
-
-        self.processed = True
-        self._thumbnail = self._pickThumbnail()
-
+            if not fe.features:
+                raise ctexceptions.NoFeaturesExtractedError(
+                    'No features found in {0}'.format(type(fe).__name__)
+                )
 
     def _pickThumbnail(self):
         assert self.loaded
@@ -100,7 +110,7 @@ class AudioAnalyser(object):
         if self.applause:
             validSections = [segment for segment in segments if not segment.applause]
         else:
-            validSection = segments
+            validSections = segments
 
         # if there's applause in everything, revert back to all segments
         if len(validSections) < 1:
@@ -112,10 +122,15 @@ class AudioAnalyser(object):
         assert len(loudSections) > 1    # should always be the case, as we've already caught when no valid sections
 
         # return a thumbnail of start to start+thumblength, coerced to be within the song length
-        return coerceThumbnail(
-            loudSections[0].start,
-            loudSections[0].start+self.thumbLengthInSamples,
-            len(self.audio.waveData))
+        try:
+            return coerceThumbnail(
+                loudSections[0].start,
+                loudSections[0].start+self.thumbLengthInSamples,
+                len(self.audio.waveData))
+        except ValueError:
+            _logger.warn('Requested thumbnail is longer than song; making'
+                         'thumbnail of entire original track')
+            return 0, len(self.audio.waveData)
 
 
     @property

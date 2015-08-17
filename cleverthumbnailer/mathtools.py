@@ -98,8 +98,12 @@ def coerceThumbnail(start, end, songLength):
         songLength(int): song length in samples
     Returns:
         tuple(start, end): new thumbnail
+
+    Raises:
+        ValueError: if length is greater than end-start
     """
-    assert (end-start) <= songLength
+    if (end-start) >= songLength:
+        raise ValueError('Song length is shorter than thumbnail to be created')
 
     if end > songLength:
         overFlow = end - songLength
