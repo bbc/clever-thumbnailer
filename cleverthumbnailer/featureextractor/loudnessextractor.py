@@ -1,7 +1,8 @@
 import numpy
 
-from timedomainextractor import TimeDomainExtractor
-from ..mathtools import interpMean, interpStats
+from cleverthumbnailer.featureextractor.timedomainextractor import \
+    TimeDomainExtractor
+from cleverthumbnailer.utils.mathtools import interpMean, interpStats
 
 
 class LoudnessExtractor(TimeDomainExtractor):

@@ -1,11 +1,11 @@
-from febase import GenericExtractor
-from ..enums import BlockDomain
+from cleverthumbnailer.featureextractor import febase
+from cleverthumbnailer import enums
 
-class TimeDomainExtractor(GenericExtractor):
+class TimeDomainExtractor(febase.GenericExtractor):
 
     @property
     def frameDomain(self):
-        return BlockDomain.time
+        return enums.BlockDomain.time
 
     def processTimeDomainFrame(self, samples, timestamp, *args, **kwargs):
         return self.processFrame(samples, timestamp, *args, **kwargs)

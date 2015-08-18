@@ -1,17 +1,18 @@
-__author__ = 'jont'
 import logging
 import appdirs
-import ctconstants
 import os.path
 import ConfigParser
-import ctexceptions
+
+from cleverthumbnailer import ctconstants, ctexceptions
+
 
 _logger = logging.getLogger(__name__)
+
 
 def getConfiguration():
     """Reads a configuration file using ConfigParser"""
     configFilePath = os.path.join(appdirs.user_config_dir(
-        ctconstants.APPNAME),'defaults.conf')
+        ctconstants.APPNAME), 'defaults.conf')
     try:
         appConfiguration = readConfiguration(configFilePath)
         _logger.info('Read config file {0}'.format(configFilePath))
@@ -54,7 +55,7 @@ def writeConfiguration(someConfig, fileLocation):
     if not os.path.exists(os.path.dirname(fileLocation)):
         os.makedirs(os.path.dirname(fileLocation))
     try:
-        with open(fileLocation,'w') as fo:
+        with open(fileLocation, 'w') as fo:
             someConfig.write(fo)
     except EnvironmentError:
         _logger.error('Error writing config file to {0}'.format(fileLocation))

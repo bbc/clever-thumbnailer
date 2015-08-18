@@ -1,6 +1,10 @@
 import numpy
 import wave
-import ctexceptions
+from cleverthumbnailer import ctexceptions
+import logging
+
+_logger = logging.getLogger(__name__)
+
 
 class AudioData(object):
     """Container for low level mono audio information and IO.
@@ -11,14 +15,22 @@ class AudioData(object):
         bitdepth (int): audio bit depth
     """
 
-    def __init__(self, filename):
+    def __init__(self, fileName=None):
+        """Initialise and load audio if provided
+
+        Args:
+            fileName(string), optional: file to be loaded as AudioData object
+        """
         self._wavefile = None
         self._sampleRate = None
         self._length = None
         self._waveData = None
         self.loaded = False
-        self.bitDepth = None
-        self.loadFile(filename)
+        self.byteDepth = None
+        self.fileName = fileName
+        self.offset = None
+        if self.fileName:
+            self.loadFile(fileName)
         pass
 
     @property
@@ -33,6 +45,12 @@ class AudioData(object):
             return self._sampleRate
         raise ValueError('No file loaded')
 
+    def crop(self, cropIn, cropOut):
+        """Crops the audio file by a set number of samples"""
+        self._waveData = self._waveData[cropIn:len(self.waveData)-cropOut]
+        self.offset = cropIn
+
+
     def loadFile(self, filename):
         """Load audio file into AudioData object]
 
@@ -42,21 +60,39 @@ class AudioData(object):
         Raises:
             FileFormatNotSupportedError: if the audio file loaded is not a
             16 or 24-bit WAVE file
+            IOError: from the wave library if the file does not exist
         """
         self._wavefile = filename
-        w = wave.open(filename, 'r')
-        (nchannels, self.bitDepth, self._sampleRate, self._length,
-         _, _) = w.getparams ()
-        if self.bitDepth==1:
-            origType = numpy.int8
-        elif self.bitDepth==2:
-            origType = numpy.int16
-        else: raise ctexceptions.FileFormatNotSupportedError('{0}-bit sample depth not supported'.format(
-            self.bitDepth*8))
-        wavType = numpy.dtype((origType,nchannels))
-        self.npOut = numpy.frombuffer(w.readframes(self._length), dtype=wavType)
-        self._waveData = numpy.mean(self.npOut,1) / numpy.iinfo(origType).max
-        self.loaded = True
+        try:
+            w = wave.open(filename, 'r')
+            (nchannels, self.byteDepth, self._sampleRate, self._length,
+             _, _) = w.getparams()
+            if self.byteDepth == 1:
+                origType = numpy.int8
+            elif self.byteDepth == 2:
+                origType = numpy.int16
+            else:
+                raise ctexceptions.FileFormatNotSupportedError(
+                    '{0}-bit sample depth not supported'.format(
+                        self.byteDepth * 8))
+            wavType = numpy.dtype((origType, nchannels))
+            multiChannelAudio = numpy.frombuffer(
+                w.readframes(self._length), dtype=wavType)
+            if numpy.ndim(multiChannelAudio) > 1:
+                # mix down the multi channel audio into the mean of
+                # each channel
+                self._waveData = numpy.mean(
+                    multiChannelAudio, 1) / numpy.iinfo(origType).max
+            else:
+                self._waveData = multiChannelAudio  # it is mono anyway
+
+            assert len(multiChannelAudio) == self._length
+            assert len(multiChannelAudio) == len(self._waveData)
+            self.offset = 0
+            self.loaded = True
+        except wave.Error as e:
+            eMessage = e.message if e.message else 'File could not be loaded'
+            raise IOError(eMessage)
 
     def frames(self, stepSize, frameSize):
         """Generate sequential window based on known step and block size
@@ -69,16 +105,19 @@ class AudioData(object):
         Yields:
             list: audio frame of size frameSize
         """
-        assert(stepSize > 0)
-        assert(self.waveData.ndim == 1)
+        if not self.loaded:
+            raise ValueError('No audio loaded to iterate over')
+
+        assert (stepSize > 0)
+        assert (self.waveData.ndim == 1)
         n = self.waveData.shape[0]
         print(n)
         i = 0
         while i < n:
-            frame = self.waveData[i : i + frameSize]
+            frame = self.waveData[i:i + frameSize]
             w = frame.shape[0]
             if w < frameSize:
                 pad = numpy.zeros((frameSize - w))
                 frame = numpy.concatenate((frame, pad), 1)
             yield frame.tolist()
-            i = i + stepSize
+            i += stepSize

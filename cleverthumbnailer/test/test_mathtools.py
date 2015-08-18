@@ -1,5 +1,7 @@
 from unittest import TestCase
-from mathtools import coerceThumbnail
+
+from cleverthumbnailer.utils.mathtools import coerceThumbnail
+
 __author__ = 'jont'
 
 class TestCoerceThumbnail(TestCase):

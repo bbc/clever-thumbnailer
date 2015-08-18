@@ -1,9 +1,11 @@
 import os
-import ctexceptions
 import logging
 import subprocess
 
+import ctexceptions
+
 _logger = logging.getLogger(__name__)
+
 
 def createThumbnail(inFile, outFile, startSeconds, durationSeconds, fade):
     """Create an audio thumbnail from an input file
@@ -18,11 +20,12 @@ def createThumbnail(inFile, outFile, startSeconds, durationSeconds, fade):
     """
     _logger.debug('Creating thumbnail from track {0} to track {1} with fade'
                   ' times {2}. Starting at {3}s, duration {4}s.'.format(
-        inFile, outFile, fade, startSeconds, durationSeconds) )
+        inFile, outFile, fade, startSeconds, durationSeconds)
+    )
 
     if not os.path.isfile(inFile):
         raise ctexceptions.FileNotFoundError('Input file not found when '
-                                               'creating thumbnail')
+                                'creating thumbnail')
 
     s = ['sox', str(inFile), str(outFile), 'trim', str(startSeconds),
          str(durationSeconds), 'fade', 't', str(fade[0]), str(durationSeconds),
@@ -34,4 +37,4 @@ def createThumbnail(inFile, outFile, startSeconds, durationSeconds, fade):
     except subprocess.CalledProcessError:
         _logger.error('Error using SoX to create thumbnail, using '
                       'parameters: {0}'.format(s))
-        raise()
+        raise ()

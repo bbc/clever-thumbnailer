@@ -1,10 +1,10 @@
 import numpy
 import logging
 from collections import deque
-
 import enum
 
-from freqdomainextractor import FrequencyDomainExtractor
+from cleverthumbnailer.featureextractor.freqdomainextractor import \
+    FrequencyDomainExtractor
 
 
 class ApplauseState(enum.Enum):

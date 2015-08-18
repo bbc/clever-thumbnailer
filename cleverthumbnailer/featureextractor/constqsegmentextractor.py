@@ -2,8 +2,10 @@ import logging
 
 import qmsegmenter
 
-from timedomainextractor import TimeDomainExtractor
-from ..segment import Segment
+from cleverthumbnailer.featureextractor.timedomainextractor import \
+    TimeDomainExtractor
+from cleverthumbnailer.segment import Segment
+
 
 class ConstQSegmentExtractor(TimeDomainExtractor):
     """Wrapper for QM DSP Constant-Q Segmenter_ algorithm.
@@ -40,7 +42,6 @@ class ConstQSegmentExtractor(TimeDomainExtractor):
             ))
         self._segInfo = None
         self._features = []
-
 
     def processFrame(self, frame, timestamp=None):
         """Process a single frame of input signal using feature extraction
@@ -91,7 +92,6 @@ class ConstQSegmentExtractor(TimeDomainExtractor):
         params.neighbourhoodLimit = int(
             self.neighbourhoodLimit / params.hopSize + 0.0001)
         return params
-
 
     @property
     def segmentSampleRate(self):

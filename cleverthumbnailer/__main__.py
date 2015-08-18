@@ -1,43 +1,36 @@
 import sys
 import os
 import argparse
-from ConfigParser import ConfigParser
 import logging
 
-from audioanalyser import AudioAnalyser
-import ctexceptions
-from ctconstants import DESCRIPTION, APPNAME
-from thumbnailcreator import createThumbnail
-import configurator
+from cleverthumbnailer import ctexceptions, ctconstants, thumbnailcreator, \
+    audioanalyser, configurator
 
 logging.basicConfig()
 _logger = logging.getLogger()
 
+
 def main(args=None):
-    if not args:
-        args = sys.argv[1:]
-    """Main routine to launch and run CleverThumbnailer
+    """Get arguments, analyse audio, and create thumbnail
 
     Args:
-        args(list): Command line arguments
-        configFile(string): Location of config file
-    Returns:
-        exit code(int)
+        args(list), optional: Command-line arguments for application
 
-    Throws:
-        SystemExit: if exit is invalid
+    Returns:
+        int: exit code (0 for success)
+
     """
+    if not args:
+        args = sys.argv[1:]
 
     # Check for config file
-
-    cfg = configurator.getConfiguration()   # get or create configuration
+    cfg = configurator.getConfiguration()  # get or create configuration
     defaultsConfig = dict(cfg.items('DEFAULTS'))
-    audioConfig = dict(cfg.items('AUDIO'))
-    ioConfig = dict(cfg.items('IO'))
 
     # Use argparse to parse commandline outputs and provide UI
     parsedArgs = parseArgs(args, defaultsConfig)
 
+    # set logging level according to args
     if parsedArgs.quiet:
         _logger.setLevel(logging.ERROR)
     elif parsedArgs.verbose == 0:
@@ -49,25 +42,30 @@ def main(args=None):
 
     # instantiate audioAnalyser, which will do all audio analysis
     _logger.info('Starting analyser')
-    analyser = AudioAnalyser(
-        parsedArgs.fade,
+    analyser = audioanalyser.AudioAnalyser(
         parsedArgs.crop,
         parsedArgs.length,
         parsedArgs.dynamic,
         not parsedArgs.noapplause
     )
-    # load file
+
+    # load audio file
     _logger.info('Loading audio')
-    analyser.loadAudio(parsedArgs.input)
+    try:
+        analyser.loadAudio(parsedArgs.input)
+    except (ctexceptions.FileFormatNotSupportedError, IOError):
+        _logger.error('Problem loading audio file, exiting...')
+        return 1
+
     # do all feature extraction
     _logger.info('Processing audio')
     analyser.processAll()
     _logger.info('Audio processed!')
 
+    # get & calculate thumbnail in and out points
     thumbStart, thumbEnd = analyser.thumbnail
     thumbStartInSeconds = analyser.inSeconds(thumbStart)
     thumbEndInSeconds = analyser.inSeconds(thumbEnd)
-
     _logger.info('Creating thumbnail from {0}s to {1}s'.format(
         thumbStartInSeconds, thumbEndInSeconds
     ))
@@ -77,9 +75,9 @@ def main(args=None):
             parsedArgs.input.name,
             cfg.get('IO', 'defaultoutputfileappend'))
 
-    # build a thumbnail
+    # build thumbnail
     try:
-        createThumbnail(
+        thumbnailcreator.createThumbnail(
             parsedArgs.input.name,
             outputFile,
             thumbStartInSeconds,
@@ -95,6 +93,7 @@ def main(args=None):
     _logger.info('Exiting...')
     return 0  # success exit code
 
+
 def parseArgs(cmdargs, defaults):
     """
     Parse command line arguments for entry into application
@@ -103,10 +102,10 @@ def parseArgs(cmdargs, defaults):
         args(list): list of string arguments to be parsed
 
     Throws:
-        SystemExit: if arguments are not syntactically valid
-    """
+        SystemExit: if arguments are not syntactically valid"""
 
-    p = argparse.ArgumentParser(prog=APPNAME, description=DESCRIPTION)
+    p = argparse.ArgumentParser(prog=ctconstants.APPNAME,
+                                description=ctconstants.DESCRIPTION)
     p.add_argument(
         'input',
         help='WAVE / BWF file for processing',
@@ -156,8 +155,8 @@ def parseArgs(cmdargs, defaults):
     )
     p.add_argument(
         '-d', '--dynamic',
-        help='Whether to use dynamic or loudest (default) metric for ' + \
-    'choosing segments',
+        help='Whether to use dynamic or loudest (default) metric for ' +
+             'choosing segments',
         action='store_true')
     p.add_argument(
         '-n',
@@ -174,10 +173,19 @@ def parseArgs(cmdargs, defaults):
     # parse args and throw SystemExit if invalid
     return p.parse_args(cmdargs)
 
-def createOutputFileName(inputFile, appendString):
-    if not appendString.isalnum():
-        noExt, ext = os.path.splitext(inputFile)
+
+def createOutputFileName(originalFileName, appendString):
+    """Append a string to an existing filename, preserving file extension
+
+    Args:
+        originalFileName(string): Original file name
+        appendString(string): String to append to original file name
+
+    Returns:
+        string: [originalwithoutextension][appendString].[extension]"""
+    noExt, ext = os.path.splitext(originalFileName)
     return ''.join([noExt, appendString, ext])
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])

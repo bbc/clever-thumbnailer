@@ -1,9 +1,7 @@
 from unittest import TestCase
 from mock import MagicMock, patch
-import ctexceptions
-import configurator
+from cleverthumbnailer import ctexceptions, configurator
 import os
-__author__ = 'jont'
 
 
 class TestConfigurator(TestCase):

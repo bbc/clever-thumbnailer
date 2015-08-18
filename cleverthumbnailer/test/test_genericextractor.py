@@ -1,8 +1,6 @@
-__author__ = 'Jon'
-
-# import qmsegmenter
-from featureextractor import GenericExtractor
 from unittest import TestCase, main
+
+from cleverthumbnailer.featureextractor import GenericExtractor
 
 class TestGenericExtractor(TestCase):
     def test_SR(self):
@@ -13,7 +11,7 @@ class TestGenericExtractor(TestCase):
         x = GenericExtractor(44100)
         self.assertEqual(x.sr, 44100)
         x.processRemaining()
-        self.assertEqual(x.features, None)                      # should have no features
+        self.assertEqual(x.features, None) # should have no features
 
 if __name__ == '__main__':
     main()

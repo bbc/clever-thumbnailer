@@ -1,20 +1,23 @@
 import numpy
 
-from ..mathtools import windowDiscard
+from cleverthumbnailer.utils import mathtools
 
 
 class GenericExtractor(object):
     """Base class for several audio feature extraction algorithms.
 
-    Feature extractors process audio in small (typically 512-2048 big) blocks of time or frequency domain samples.
-    Each block is processed iteratively and then the whole audio signal post-analysed once this has been completed.
-    A feature extractor is configured at initialisation with (minimally) an audio sample rate.
+    Feature extractors process audio in small (typically 512-2048 big) blocks
+    of time or frequency domain samples. Each block is processed iteratively
+    and then the whole audio signal post-analysed once this has been completed.
+    A feature extractor is configured at initialisation with (minimally) an
+    audio sample rate.
 
     Attributes:
         sr (int): Working sample rate (in samples/sec) of feature extractor
         blockSize (int): Size of block or window to be processed
         stepSize (int): Size of expected step between iterated blocks
-        frameDomain (BlockDomain): required domain of input signals (frequency or time)
+        frameDomain (BlockDomain): required domain of input signals (frequency
+            or time)
         features (dict): features extracted so far
     """
 
@@ -39,13 +42,14 @@ class GenericExtractor(object):
         """Process stream of audio based on list (frames)
 
         Args:
-            audioSamples(list): 1D list of audio samlpes for input
+            audioSamples(list): 1D list of audio samples for input
 
         """
 
         assert numpy.ndim(audioSamples) == 1
         for i, frame in enumerate(
-                windowDiscard(audioSamples, self.stepSize, self.blockSize)):
+                mathtools.windowDiscard(audioSamples, self.stepSize,
+                                        self.blockSize)):
             self.processTimeDomainFrame(frame, i * self.stepSize)
         self.processRemaining()
 
@@ -65,8 +69,9 @@ class GenericExtractor(object):
     def processRemaining(self):
         """Calculate any remaining audio features after processing each frame.
 
-        Calling function will cause analysis to use information gathered from frames so far analysed. processRemaining()
-        should usually be called after processing all audio frames using processFrames().
+        Calling function will cause analysis to use information gathered from
+        frames so far analysed. processRemaining() should usually be called
+        after processing all audio frames using processFrames().
         """
         raise NotImplementedError
 

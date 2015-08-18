@@ -1,15 +1,14 @@
-from numpy.fft import fft
+from numpy import fft
 
-from ..enums import BlockDomain
-from febase import GenericExtractor
+from cleverthumbnailer.featureextractor import febase
+from cleverthumbnailer import enums
 
-
-class FrequencyDomainExtractor(GenericExtractor):
+class FrequencyDomainExtractor(febase.GenericExtractor):
 
     @property
     def frameDomain(self):
-        return BlockDomain.frequency
+        return enums.BlockDomain.frequency
 
     def processTimeDomainFrame(self, samples, timestamp, *args, **kwargs):
         # TODO: Test
-        return self.processFrame(fft(samples), timestamp, *args, **kwargs)
+        return self.processFrame(fft.fft(samples), timestamp, *args, **kwargs)

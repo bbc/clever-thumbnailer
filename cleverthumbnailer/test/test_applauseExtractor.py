@@ -1,10 +1,13 @@
-from unittest import TestCase
-from featureextractor.applauseextractor import ApplauseExtractor, \
-    ApplauseState
-from audioanalyser import AudioData
 import logging
+from unittest import TestCase
+
+from cleverthumbnailer.featureextractor.applauseextractor import \
+    ApplauseExtractor, ApplauseState
+from cleverthumbnailer.audiodata import AudioData
+
 __author__ = 'jont'
-_TESTWAVE = '/home/jont/Dropbox/BBC2/Projects/Thumbnailer/Applause/3liveinconcert_nuovamusica_1.wav'
+_TESTWAVE = '/home/jont/Dropbox/BBC2/Projects/Thumbnailer/Applause/' \
+            '3liveinconcert_nuovamusica_1.wav'
 
 _logger = logging.getLogger(__name__)
 
@@ -40,7 +43,8 @@ class TestApplauseExtractor(TestCase):
         x.processAllAudio(self.audioData.waveData)
         for n, feature in enumerate(x.features):
             type, timestamp = feature
-            m1, s1 = divmod((timestamp/x.sr),60)  # time to minutes & seconds for readability
+            # time to minutes & seconds for readability
+            m1, s1 = divmod((timestamp/x.sr),60)
             print('\tSection {0}: Type {1}. Start {2}m{3}s'.format(
                 n, type, m1, s1))
         assert True

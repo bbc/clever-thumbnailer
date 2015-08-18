@@ -1,5 +1,6 @@
 from unittest import TestCase
 from mock import patch, MagicMock
+
 import numpy
 
 from cleverthumbnailer import audiodata, ctexceptions
