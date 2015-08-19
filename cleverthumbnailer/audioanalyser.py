@@ -192,14 +192,20 @@ class AudioAnalyser(object):
         # return a thumbnail of start to start+thumblength, coerced to be
         # within the song length
         try:
+            # create the thumbnail by:
+            # 1. choosing start=bestSegment, end=bestSegment + thumbLength
+            # 2. coercing it to fit within the bounds of the audio
+            # 3. applying an offset to it so that start and end are relative
+            # to original audio rather than self.waveData
             return self.offsetThumbnail(mathtools.coerceThumbnail(
                 loudSections[0].start,
                 loudSections[0].start + self.thumbLengthInSamples,
                 len(self.audio.waveData)))
         except ValueError:
             _logger.warn('Requested thumbnail is longer than song; making'
-                         'thumbnail of entire original track')
-            return 0, len(self.audio.waveData)
+                         'thumbnail of entire original (cropped) track')
+            # return thumbnail pointing to cropped track
+            return self.offsetThumbnail((0, len(self.audio.waveData)))
 
     @property
     def middleThumbNail(self):
@@ -211,7 +217,19 @@ class AudioAnalyser(object):
         """
         if self._dumbNail:
             return self._dumbNail
+        self._dumbNail = self._calculateMiddleThumbnail()
+        return self._dumbNail
 
+    def _calculateMiddleThumbnail(self):
+        """Calculate 'middle X seconds' thumbnail of (cropped) audio
+
+        Creates a thumbnail centred around the middle of self.waveData, of
+         length self.length. As such, generated thumbnails respect
+
+        Return:
+            tuple(start in samples, end in samples): The thumbnail start and
+            end sample positions relative to
+        """
         songLength = len(self.audio.waveData)
         halfOfThumbLength = int(
             floor(self.inSamples(self.thumbLengthInSeconds) / 2))
@@ -232,9 +250,8 @@ class AudioAnalyser(object):
 
         # coerce thumbnail to be within song (shift forwards/backwards if it
         # under or overruns)
-        self._dumbNail = self.offsetThumbnail(mathtools.coerceThumbnail(
+        return self.offsetThumbnail(mathtools.coerceThumbnail(
             startPoint, endPoint, songLength))
-        return self._dumbNail
 
     def inSeconds(self, sampleN):
         """Convert time in samples to time in seconds.
