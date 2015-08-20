@@ -71,6 +71,7 @@ def createDefaultConfiguration():
     cfg.set('DEFAULTS', 'cropstart', '7')
     cfg.set('DEFAULTS', 'cropend', '7')
     cfg.set('DEFAULTS', 'thumbnaillength', '30')
+    cfg.set('DEFAULTS', 'prelude', '10')
 
     cfg.set('AUDIO', 'rmswindowsize', '1024')
 

@@ -17,18 +17,23 @@ class AudioAnalyser(object):
                           applauseextractor.ApplauseExtractor,
                           constqsegmentextractor.ConstQSegmentExtractor)
 
-    def __init__(self, crop=(7, 7), length=30, dynamic=False, applause=True):
+    def __init__(self, crop=(7, 7), length=30, prelude=10, dynamic=False, \
+                                                          applause=True):
         """
         Args:
             crop(tuple(in, out)): Seconds to ignore at beginning and end of
             audio
             length(float): Length of thumbnail to be produced
+            prelude(float): Length of prelude (amount of time prior to segment
+            start to thumbnail) in seconds
             dynamic(bool): Use 'largest dynamic variation' rather than
             'loudest segment' when evaluating segments to thumbnail
             applause(bool): Use applause detection
         """
+
         self.crop = crop
         self.thumbLengthInSeconds = length
+        self.prelude = prelude
         self.behaviour = enums.AnalysisBehaviour.DYNAMIC if dynamic else \
             enums.AnalysisBehaviour.LOUDNESS
         self.loaded = False
@@ -201,13 +206,15 @@ class AudioAnalyser(object):
         # within the song length
         try:
             # create the thumbnail by:
-            # 1. choosing start=bestSegment, end=bestSegment + thumbLength
+            # 1. choosing start = bestSegment - prelude,
+            #   end = bestSegment + thumbLength - prelude
             # 2. coercing it to fit within the bounds of the audio
             # 3. applying an offset to it so that start and end are relative
             # to original audio rather than self.waveData
+            thumbnailStart = loudSections[0].start - self.prelude
             return self.offsetThumbnail(mathtools.coerceThumbnail(
-                loudSections[0].start,
-                loudSections[0].start + self.thumbLengthInSamples,
+                thumbnailStart,
+                thumbnailStart + self.thumbLengthInSamples,
                 len(self.audio.waveData)))
         except ValueError:
             _logger.warn('Requested thumbnail is longer than song; making'

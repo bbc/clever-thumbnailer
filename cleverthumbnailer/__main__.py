@@ -130,7 +130,7 @@ def parseArgs(cmdargs, defaults):
         '--fade',
         help='Fade in and out times in seconds',
         nargs=2,
-        type=float,
+        type=positiveReal,
         metavar=('in', 'out'),
         default=(
             float(defaults['fadein']), float(defaults['fadeout'])
@@ -142,20 +142,28 @@ def parseArgs(cmdargs, defaults):
         help='the amount of time at the beginning and end of a track to ignore'
              ' when choosing thumbnails',
         nargs=2,
-        type=float,
+        type=positiveReal,
         metavar=('in', 'out'),
         default=(
             float(defaults['cropstart']), float(defaults['cropend'])
         ),
     )
-
     p.add_argument(
         '-l',
         '--length',
         help='Thumbnail length in seconds',
-        type=float,
+        type=positiveReal,
         metavar='seconds',
         default=float(defaults['thumbnaillength']),
+    )
+    p.add_argument(
+        '-p',
+        '--prelude',
+        help='Amount of time in seconds to include in thumbnail prior to '
+             'section start',
+        type=positiveReal,
+        metavar='seconds',
+        default=float(defaults['prelude']),
     )
     p.add_argument(
         '-d', '--dynamic',
@@ -189,6 +197,18 @@ def createOutputFileName(originalFileName, appendString):
         string: [originalwithoutextension][appendString].[extension]"""
     noExt, ext = os.path.splitext(originalFileName)
     return ''.join([noExt, appendString, ext])
+
+def positiveReal(value):
+    """Checks if a value is a positive, real number"""
+    try:
+        floatVal = float(value)
+        if floatVal < 0:
+            raise argparse.ArgumentTypeError('{0} is not a positive '
+                                             'number'.format(value))
+    except ValueError:
+        raise argparse.ArgumentTypeError('{0} is not a positive '
+                                             'number'.format(value))
+    return value
 
 
 if __name__ == '__main__':
