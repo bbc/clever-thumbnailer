@@ -72,8 +72,8 @@ def main(args=None):
 
     # get & calculate thumbnail in and out points
     thumbStart, thumbEnd = analyser.thumbnail
-    thumbStartInSeconds = analyser.inSeconds(thumbStart)
-    thumbEndInSeconds = analyser.inSeconds(thumbEnd)
+    thumbStartInSeconds = analyser.audio.inSeconds(thumbStart)
+    thumbEndInSeconds = analyser.audio.inSeconds(thumbEnd)
     _logger.info('Creating thumbnail from {0}s to {1}s'.format(
         thumbStartInSeconds, thumbEndInSeconds
     ))

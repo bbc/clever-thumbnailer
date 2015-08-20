@@ -17,8 +17,8 @@ class AudioAnalyser(object):
                           applauseextractor.ApplauseExtractor,
                           constqsegmentextractor.ConstQSegmentExtractor)
 
-    def __init__(self, crop=(7, 7), length=30, prelude=10, dynamic=False, \
-                                                          applause=False):
+    def __init__(self, crop=(7, 7), length=30, prelude=10, dynamic=False,
+                 applause=False):
         """
         Args:
             crop(tuple(in, out)): Seconds to ignore at beginning and end of
@@ -58,19 +58,20 @@ class AudioAnalyser(object):
 
         _logger.debug('Loading file {0}'.format(fileName))
 
-        #Load and crop audio file
+        # Load and crop audio file
         try:
             self.audio = audiodata.AudioData(fileName)
             _logger.info(
                 'Length of audio file before cropping is {0}'.format(
-                    self.inSeconds(len(self.audio.waveData))
+                    self.audio.inSeconds(len(self.audio.waveData))
                 ))
 
             # crop by passing fade in and fade out as arguments
-            self.audio.crop(self.inSamples(self.crop[0]), self.inSamples(
-                self.crop[1]))
+            self.audio.crop(self.audio.inSamples(self.crop[0]),
+                            self.audio.inSamples(
+                                self.crop[1]))
             _logger.info('Length of audio file after cropping is {0}'.format(
-                self.inSeconds(len(self.audio.waveData))
+                self.audio.inSeconds(len(self.audio.waveData))
             ))
             self.loaded = True
         # AudioData.__init__throws IOError or FileFormatNotSupportedError if it
@@ -84,7 +85,7 @@ class AudioAnalyser(object):
 
     @property
     def thumbLengthInSamples(self):
-        return self.inSamples(self.thumbLengthInSeconds)
+        return self.audio.inSamples(self.thumbLengthInSeconds)
 
     @property
     def thumbnail(self):
@@ -254,7 +255,7 @@ class AudioAnalyser(object):
         """
         songLength = len(self.audio.waveData)
         halfOfThumbLength = int(
-            floor(self.inSamples(self.thumbLengthInSeconds) / 2))
+            floor(self.audio.inSamples(self.thumbLengthInSeconds) / 2))
         thumbLength = halfOfThumbLength * 2
 
         # return original if we can't make a thumbnail
@@ -274,28 +275,6 @@ class AudioAnalyser(object):
         # under or overruns)
         return self.offsetThumbnail(mathtools.coerceThumbnail(
             startPoint, endPoint, songLength))
-
-    def inSeconds(self, sampleN):
-        """Convert time in samples to time in seconds.
-
-        Args:
-            sampleN(int): time in samples
-
-        Returns:
-            float: time in seconds
-        """
-        return 1.0 * sampleN / self.audio.sr
-
-    def inSamples(self, seconds):
-        """Convert time in seconds to time in samples.
-
-        Args:
-            seconds(float): time in seconds
-
-        Returns:
-            int: time in samples
-        """
-        return int(seconds * self.audio.sr)
 
     def offsetThumbnail(self, thumbnail):
         """Apply crop time offset to an audio thumbnail tuple.
@@ -321,6 +300,7 @@ class AudioAnalyser(object):
         """
         newThumb = [x + self.audio.offset for x in thumbnail]
         _logger.debug('Offsetting thumbnail from {0} to {1}'.format(
-            thumbnail, newThumb
+            self.audio.tupleToTimestamp(thumbnail),
+            self.audio.tupleToTimestamp(newThumb)
         ))
         return tuple(newThumb)

@@ -95,8 +95,17 @@ class GenericExtractor(object):
     def features(self):
         return self._features
 
-    def secsToSamples(self, secs):
-        return secs * self.sr
+    def inSamples(self, secs):
+        return mathtools.inSamples(self.sr, secs)
+
+    def inSeconds(self, samples):
+        return mathtools.inSeconds(self.sr, secs)
+
+    def tupleToTimestamp(self, someTuple):
+        return mathtools.tupleToTimestamp(self.sr, someTuple)
+
+    def sampleToTimestamp(self, sampleN):
+        return mathtools.samplesToTimestamp(self.sr, sampleN)
 
     @property
     def frameDomain(self):

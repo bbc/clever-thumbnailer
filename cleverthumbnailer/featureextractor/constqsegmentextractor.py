@@ -71,7 +71,13 @@ class ConstQSegmentExtractor(TimeDomainExtractor):
             newSegment = Segment(
                 int(feature.start), int(feature.end), int(feature.type))
             self._features.append(newSegment)
-            self._logger.debug('Found segment #{0}: {1}'.format(i, newSegment))
+            self._logger.debug(
+                'Found segment #{0}: Start: {1}, End: {2}, Type: {3}'.format(
+                i,
+                self.sampleToTimestamp(newSegment.start),
+                self.sampleToTimestamp(newSegment.end),
+                newSegment.type
+            ))
         # state flag to allow us to
         self._done = True
 

@@ -1,6 +1,7 @@
 import numpy
 import wave
 from cleverthumbnailer import ctexceptions
+from cleverthumbnailer.utils import mathtools
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -128,3 +129,12 @@ class AudioData(object):
                 frame = numpy.concatenate((frame, pad), 1)
             yield frame.tolist()
             i += stepSize
+
+    def inSeconds(self, sampleN):
+        return mathtools.inSeconds(self.sr, sampleN)
+
+    def inSamples(self, seconds):
+        return mathtools.inSamples(self.sr, seconds)
+
+    def tupleToTimestamp(self, someTuple):
+        return mathtools.tupleToTimestamp(self.sr, someTuple)
