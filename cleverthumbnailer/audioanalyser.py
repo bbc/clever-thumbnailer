@@ -129,8 +129,6 @@ class AudioAnalyser(object):
         Returns:
             tuple(start, end): Thumbnail in samples, referenced to original
             audio file.
-
-        :return:
         """
         assert self.loaded
         assert self.processed

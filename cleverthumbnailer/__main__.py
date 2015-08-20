@@ -136,7 +136,8 @@ def parseArgs(cmdargs, defaults):
     p.add_argument(
         '-c',
         '--crop',
-        help='Crop time (seconds)',
+        help='the amount of time at the beginning and end of a track to ignore'
+             ' when choosing thumbnails',
         nargs=2,
         type=float,
         metavar=('in', 'out'),
