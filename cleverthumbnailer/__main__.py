@@ -99,13 +99,16 @@ def parseArgs(cmdargs, defaults):
     Parse command line arguments for entry into application
 
     Args:
-        args(list): list of string arguments to be parsed
+        cmdargs(list): list of string arguments to be parsed
+        defaults(dict): list of configuration defaults to use
 
     Throws:
         SystemExit: if arguments are not syntactically valid"""
 
     p = argparse.ArgumentParser(prog=ctconstants.APPNAME,
-                                description=ctconstants.DESCRIPTION)
+                                description=ctconstants.DESCRIPTION,
+                                formatter_class=
+                                argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument(
         'input',
         help='WAVE / BWF file for processing',
@@ -125,7 +128,7 @@ def parseArgs(cmdargs, defaults):
     p.add_argument(
         '-f',
         '--fade',
-        help='Fade in and out times (seconds)',
+        help='Fade in and out times in seconds',
         nargs=2,
         type=float,
         metavar=('in', 'out'),
@@ -149,14 +152,14 @@ def parseArgs(cmdargs, defaults):
     p.add_argument(
         '-l',
         '--length',
-        help='Thumbnail length (seconds)',
+        help='Thumbnail length in seconds',
         type=float,
         metavar='seconds',
         default=float(defaults['thumbnaillength']),
     )
     p.add_argument(
         '-d', '--dynamic',
-        help='Whether to use dynamic or loudest (default) metric for ' +
+        help='Whether to use dynamic rather than loudest metric for ' +
              'choosing segments',
         action='store_true')
     p.add_argument(
