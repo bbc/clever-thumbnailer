@@ -47,9 +47,8 @@ class AudioData(object):
 
     def crop(self, cropIn, cropOut):
         """Crops the audio file by a set number of samples"""
-        self._waveData = self._waveData[cropIn:len(self.waveData)-cropOut]
+        self._waveData = self._waveData[cropIn:len(self.waveData) - cropOut]
         self.offset = cropIn
-
 
     def loadFile(self, filename):
         """Load audio file into AudioData object]
@@ -86,11 +85,19 @@ class AudioData(object):
             else:
                 self._waveData = multiChannelAudio  # it is mono anyway
 
-            assert len(multiChannelAudio) == self._length
+            if len(multiChannelAudio) != self._length:
+                # adjust how much we process if the header length is wrong
+                _logger.warn('Reported file length is incorrect (reported: '
+                             '{0} samples; found: {1} samples). Processing '
+                             'as much audio as possible'.format(
+                    self._length, len(multiChannelAudio)))
+                self._length = len(multiChannelAudio)
             assert len(multiChannelAudio) == len(self._waveData)
             self.offset = 0
             self.loaded = True
-        except (wave.Error, EOFError) as e:
+        # ValueError catches when w.readFrames fails due to an incorrectly
+        # sized file. AssertionError happens when a WAV file has differently
+        except (wave.Error, EOFError, ValueError) as e:
             eMessage = e.message if e.message else 'File could not be loaded'
             raise IOError(eMessage)
 
