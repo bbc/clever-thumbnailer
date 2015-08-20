@@ -1,9 +1,10 @@
-from unittest import TestCase
-from __main__ import main, parseArgs, getConfig
-from ConfigParser import NoSectionError
-from ctconstants import CONFIGFILE, DESCRIPTION, APPNAME
 import os
-from mock import MagicMock
+from unittest import TestCase
+
+from ConfigParser import NoSectionError
+
+from cleverthumbnailer.__main__ import main, parseArgs
+from cleverthumbnailer.ctconstants import CONFIGFILE, DESCRIPTION, APPNAME
 
 __author__ = 'jont'
 _VALIDCONFIG = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', CONFIGFILE))
@@ -43,6 +44,7 @@ class TestParseArgs(TestCase):
         'cropstart': 0,
         'cropend': 0,
         'thumbnaillength': 0,
+        'prelude': 0
     }
 
     def test_validParseArgs(self):
@@ -62,13 +64,15 @@ class TestParseArgs(TestCase):
     def test_invalidParseArgs(self):
         commands = (
             '-o out.wav',
-            '-f 0 test.wav',
-            '-f 0 0 0 test.wav',
-            '-c 0 test.wav',
-            '-c 0 0 0 test.wav',
-            '-l nothing test.wav'
-            '-n -n test.wav'
-            '-f 0 0 -c 0 0 -l 0 -d -n test.wav test.wav',
+            '-c -5 5 in.wav',
+            '-p 10 in.wav'
+            # '-f 0 test.wav',
+            # '-f 0 0 0 test.wav',
+            # '-c 0 test.wav',
+            # '-c 0 0 0 test.wav',
+            # '-l nothing test.wav'
+            # '-n -n test.wav'
+            # '-f 0 0 -c 0 0 -l 0 -d -n test.wav test.wav',
         )
         for c in commands:
             with self.assertRaises(SystemExit):

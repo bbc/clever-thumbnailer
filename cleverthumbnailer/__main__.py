@@ -28,7 +28,14 @@ def main(args=None):
     defaultsConfig = dict(cfg.items('DEFAULTS'))
 
     # Use argparse to parse commandline outputs and provide UI
-    parsedArgs = parseArgs(args, defaultsConfig)
+    try:
+        parsedArgs = parseArgs(args, defaultsConfig)
+    except KeyError as e:
+        _logger.error('Invalid configuration file. Please try deleting '
+                      '{0} and try again'.format(
+            configurator.getDefaultConfigFile()))
+        _logger.info('Quitting...')
+        return 1
 
     # set logging level according to args
     if parsedArgs.quiet:

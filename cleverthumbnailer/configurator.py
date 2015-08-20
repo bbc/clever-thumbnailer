@@ -10,8 +10,7 @@ _logger = logging.getLogger(__name__)
 
 def getConfiguration():
     """Reads a configuration file using ConfigParser"""
-    configFilePath = os.path.join(appdirs.user_config_dir(
-        ctconstants.APPNAME), 'defaults.conf')
+    configFilePath = getDefaultConfigFile()
     try:
         appConfiguration = readConfiguration(configFilePath)
         _logger.info('Read config file {0}'.format(configFilePath))
@@ -23,6 +22,9 @@ def getConfiguration():
         _logger.info('Created config file {0}'.format(configFilePath))
     return appConfiguration
 
+def getDefaultConfigFile():
+    return os.path.join(appdirs.user_config_dir(
+        ctconstants.APPNAME), 'defaults.conf')
 
 def readConfiguration(configFilePath):
     """Reads configuration from file
