@@ -15,7 +15,7 @@ Cleverthumbnailer can be installed using Python setuptools:
 1. Install dependencies
     - *Note: cleverthumbnailer requires the QM-DSP library, which (currently) must be built from source—see [Dependencies](#Dependencies)*
 2. Open a terminal, and cd to this repository
-3. Run `python setup.py install`
+3. Run `python2 setup.py install`
 4. Check that Cleverthumbnailer runs by typing (from this or any other directory) `cleverthumbnailer -h`
 
 ##Usage
@@ -63,6 +63,10 @@ Cleverthumbnailer depends on the following:
 ##Credits
 
 The code in this repository was created by Jon Tutcher in 2015 for [BBC Research & Development](http://www.bbc.co.uk/rd).
+
+[QM-DSP](https://code.soundsoftware.ac.uk/projects/qm-dsp) was created by Queen Mary University of London; the segmenter module used here was developed by Mark Levy and Chris Cannam.
+
+Cleverthumbnailer also includes and makes use of the Python [appdirs](https://github.com/ActiveState/appdirs) module, credits for which are included in appdirs.py. 
 
 ##License
 

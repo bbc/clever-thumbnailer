@@ -17,12 +17,10 @@ setup(
     install_requires=[
         'numpy',
         'qmsegmenter',
-        'appdirs',
         'enum',
         'logging',
         'argparse',
         'wave',
-        'appdirs',
     ],
 
     classifiers=[

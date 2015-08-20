@@ -1,10 +1,9 @@
 import logging
-import appdirs
 import os.path
 import ConfigParser
 
+from cleverthumbnailer.utils import appdirs
 from cleverthumbnailer import ctconstants, ctexceptions
-
 
 _logger = logging.getLogger(__name__)
 
