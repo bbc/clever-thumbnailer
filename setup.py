@@ -20,7 +20,6 @@ setup(
         'enum',
         'logging',
         'argparse',
-        'wave',
     ],
 
     classifiers=[
