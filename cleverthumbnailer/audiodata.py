@@ -57,8 +57,8 @@ class AudioData(object):
             filename (str): Audio filename for loading
 
         Raises:
-            FileFormatNotSupportedError: if the audio file loaded is not a
-            16 or 24-bit WAVE file
+            FileFormatNotSupportedError: if the audio file loaded is not an 8
+            or 16-bit WAVE file
             IOError: from the wave library if the file does not exist
         """
         self._wavefile = filename
@@ -96,7 +96,8 @@ class AudioData(object):
             self.offset = 0
             self.loaded = True
         # ValueError catches when w.readFrames fails due to an incorrectly
-        # sized file. AssertionError happens when a WAV file has differently
+        # sized file. EOFError and ValueError may be raised by the
+        # wave.open() function if it encounters a bad or incomprehensible file.
         except (wave.Error, EOFError, ValueError) as e:
             eMessage = e.message if e.message else 'File could not be loaded'
             raise IOError(eMessage)
@@ -118,7 +119,6 @@ class AudioData(object):
         assert (stepSize > 0)
         assert (self.waveData.ndim == 1)
         n = self.waveData.shape[0]
-        print(n)
         i = 0
         while i < n:
             frame = self.waveData[i:i + frameSize]

@@ -53,7 +53,7 @@ class AudioAnalyser(object):
 
         _logger.debug('Loading file {0}'.format(fileName))
 
-        # load data and raise errors if incorrect
+        #Load and crop audio file
         try:
             self.audio = audiodata.AudioData(fileName)
             _logger.info(
@@ -68,6 +68,8 @@ class AudioAnalyser(object):
                 self.inSeconds(len(self.audio.waveData))
             ))
             self.loaded = True
+        # AudioData.__init__throws IOError or FileFormatNotSupportedError if it
+        # cannot load an audio file. Catch and gracefully exit.
         except (IOError, ctexceptions.FileFormatNotSupportedError) as e:
             if e.message:
                 _logger.error(e.message)
@@ -282,9 +284,17 @@ class AudioAnalyser(object):
         return int(seconds * self.audio.sr)
 
     def offsetThumbnail(self, thumbnail):
-        """Make thumbnails reference original audio by offsetting them by the
-        same number of samples as are cropped from beginning of file in
-        waveData.
+        """Apply crop time offset to an audio thumbnail tuple.
+
+        Thumbnails produced relative to self.waveData contain an in point in
+        samples and an out point in samples (e.g. (1200, 1600)). These
+        samples are the points in time in the *cropped* audio for which the
+        thumbnail applies. This function compensates for the crop time
+        applied to self.waveData, and shifts the thumbnail in and out points
+        back by [self.offset] amount. The result is a thumbnail tuple whose in
+        and out points (in samples) are relative to the original audio file,
+        rather than the cropped version of it used internally within this
+        class.
 
         Args:
             thumbnail (tuple): thumbnail in and out points in samples relative
