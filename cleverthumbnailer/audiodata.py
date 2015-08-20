@@ -90,7 +90,7 @@ class AudioData(object):
             assert len(multiChannelAudio) == len(self._waveData)
             self.offset = 0
             self.loaded = True
-        except wave.Error as e:
+        except (wave.Error, EOFError) as e:
             eMessage = e.message if e.message else 'File could not be loaded'
             raise IOError(eMessage)
 
