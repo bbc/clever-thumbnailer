@@ -18,7 +18,7 @@ class AudioAnalyser(object):
                           constqsegmentextractor.ConstQSegmentExtractor)
 
     def __init__(self, crop=(7, 7), length=30, prelude=10, dynamic=False, \
-                                                          applause=True):
+                                                          applause=False):
         """
         Args:
             crop(tuple(in, out)): Seconds to ignore at beginning and end of
@@ -111,15 +111,21 @@ class AudioAnalyser(object):
             self._thumbnail = self.middleThumbNail
 
     def _extractFeatures(self):
+        # instantiate all of the other feature extractors
         self._featureExtractors = {fe: fe(self.audio.sr) for fe in
                                    self._FEATUREEXTRACTORS}
+
+        # remove the applause extractor if we don't need it
+        if not self.applause:
+            del self._featureExtractors[applauseextractor.ApplauseExtractor]
+
+        # perform analysis using each feature extractor
         for key, fe in self._featureExtractors.iteritems():
             _logger.info('Analysing using {0}'.format(key.__name__))
             fe.processAllAudio(self.audio.waveData)
             if not fe.features:
                 raise ctexceptions.NoFeaturesExtractedError(
-                    'No features found in {0}'.format(key.__name__)
-                )
+                    'No features found in {0}'.format(key.__name__))
 
     def _pickThumbnail(self):
         """Choose an audio thumbnail according to current configuration and
@@ -147,14 +153,11 @@ class AudioAnalyser(object):
         # assign a name to each of the feature extractors
         loudnessFE = self._featureExtractors[
             loudnessextractor.LoudnessExtractor]
-        applauseFE = self._featureExtractors[
-            applauseextractor.ApplauseExtractor]
         segmentFE = self._featureExtractors[
             constqsegmentextractor.ConstQSegmentExtractor]
 
         # check the feature extractors have the methods we need
         assert hasattr(loudnessFE, 'getStats')
-        assert hasattr(applauseFE, 'checkApplause')
 
         # copy out the segments from the segment extractor
         segments = [segment for segment in segmentFE.features]
@@ -175,14 +178,18 @@ class AudioAnalyser(object):
             segment.loudness = (maxLoudness - minLoudness) \
                 if self.behaviour is enums.AnalysisBehaviour.DYNAMIC \
                 else meanLoudness
+
             # if we're analysing applause too, check each segment for
             # presence of applause
-            if self.applause:
+            if applauseextractor.ApplauseExtractor in self._featureExtractors:
+                applauseFE = self._featureExtractors[
+                    applauseextractor.ApplauseExtractor]
+                assert hasattr(applauseFE, 'checkApplause')
                 segment.applause = applauseFE.checkApplause(
                     segment.start, segment.end)
 
         # take out sections with applause
-        if self.applause:
+        if applauseextractor.ApplauseExtractor in self._featureExtractors:
             validSections = [segment for segment in segments if
                              not segment.applause]
         else:

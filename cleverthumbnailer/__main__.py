@@ -52,8 +52,9 @@ def main(args=None):
     analyser = audioanalyser.AudioAnalyser(
         parsedArgs.crop,
         parsedArgs.length,
+        parsedArgs.prelude,
         parsedArgs.dynamic,
-        not parsedArgs.noapplause
+        parsedArgs.applause
     )
 
     # load audio file
@@ -178,9 +179,9 @@ def parseArgs(cmdargs, defaults):
              'choosing segments',
         action='store_true')
     p.add_argument(
-        '-n',
-        '--noapplause',
-        help='Skip applause detection',
+        '-a',
+        '--applause',
+        help='Turn on applause detection',
         action='store_true')
     p.add_argument(
         '-o',
@@ -215,7 +216,7 @@ def positiveReal(value):
     except ValueError:
         raise argparse.ArgumentTypeError('{0} is not a positive '
                                              'number'.format(value))
-    return value
+    return floatVal
 
 
 if __name__ == '__main__':
