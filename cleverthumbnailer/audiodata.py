@@ -117,24 +117,25 @@ class AudioData(object):
         if not self.loaded:
             raise ValueError('No audio loaded to iterate over')
 
-        assert (stepSize > 0)
-        assert (self.waveData.ndim == 1)
-        n = self.waveData.shape[0]
-        i = 0
-        while i < n:
+        # iterate through sample indices, stepping by stepSize
+        for i in xrange(0, len(self.waveData), stepSize):
+            # slice frame out of waveform
             frame = self.waveData[i:i + frameSize]
-            w = frame.shape[0]
-            if w < frameSize:
-                pad = numpy.zeros((frameSize - w))
+            # pad end of frame with zeros if we're at the end of the waveform
+            if len(frame) < frameSize:
+                pad = numpy.zeros((frameSize - len(frame)))
                 frame = numpy.concatenate((frame, pad), 1)
+            # output list for compatibility
             yield frame.tolist()
-            i += stepSize
 
     def inSeconds(self, sampleN):
         return mathtools.inSeconds(self.sr, sampleN)
 
     def inSamples(self, seconds):
         return mathtools.inSamples(self.sr, seconds)
+
+    def sampleToTimestamp(self, someTuple):
+        return mathtools.samplesToTimestamp(self.sr, someTuple)
 
     def tupleToTimestamp(self, someTuple):
         return mathtools.tupleToTimestamp(self.sr, someTuple)

@@ -1,4 +1,5 @@
-"""Container for feature extractor enums"""
+"""Module containing all custom enums used by the cleverthumbnailer
+application"""
 
 import enum
 

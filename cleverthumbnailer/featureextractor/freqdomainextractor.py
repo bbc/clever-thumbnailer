@@ -27,4 +27,6 @@ class FrequencyDomainExtractor(febase.GenericExtractor):
         Returns:
             object: any output from the feature extractor's processFrame method
         """
+
+        # perform FFT on time-domain frame and then pass for processing
         return self.processFrame(fft.fft(samples), timestamp, *args, **kwargs)

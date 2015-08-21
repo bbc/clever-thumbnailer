@@ -91,7 +91,7 @@ class ApplauseExtractor(FrequencyDomainExtractor):
         # all applause detection work is undertaken as we go along. Nothing to
         # do by the time this is called, but must be overridden so as not to
         # raise NotImplementedError()
-        self._logger.debug('processRemaining() called but nothing to do.')
+        self._done = True
         pass
 
     def _applauseDetection(self, crestFactor):
@@ -131,8 +131,7 @@ class ApplauseExtractor(FrequencyDomainExtractor):
             calculated
 
         Returns:
-            ApplauseState: Either applause or music, according to
-            ApplauseState enum."""
+            ApplauseState: Either applause or music, according to enum."""
         position = numpy.searchsorted(
             [feature[0] for feature in self._features],
             sample, side='right') - 1
@@ -144,18 +143,22 @@ class ApplauseExtractor(FrequencyDomainExtractor):
         return self._features[position], position
 
     def checkApplause(self, startSample, endSample):
-        """Check to see if any occurrences of applause occur in a particular
-        region
+        """Check if any occurrences of applause occur in a particular region
+
         Args:
             startSample(int): the start point of the region to check
             endSample(int): the end point of the region to check
         Returns:
             applauseOccurred(boolean): True if applause was detected
         """
-        startIndex = self.getStateAtSample(startSample)[1]
-        endIndex = self.getStateAtSample(endSample)[1]
-        for feature in self._features[startIndex:endIndex]:
-            featureType = feature[1]  # unbundle feature
+
+        # get the indices of states at the beginning and end of region
+        startStateIndex = self.getStateAtSample(startSample)[1]
+        endStateIndex = self.getStateAtSample(endSample)[1]
+
+        # iterate over intermediate states to find applause
+        for feature in self._features[startStateIndex:endStateIndex]:
+            featureType = feature[1]  # get feature type from tuple
             if featureType is ApplauseState.applause:
                 return True
         return False
@@ -171,12 +174,14 @@ class ApplauseExtractor(FrequencyDomainExtractor):
 
 def spectralCrest(freqDomainFrame):
     """Calculate the crest factor of a block of audio
+
     Args:
         freqDomainFrame(complex array-like): freq domain info for audio block
+
     Returns:
         crestFactor(int): spectral crest factor of audio
     """
     magnitudeSpectrum = \
         numpy.absolute(freqDomainFrame) / (len(freqDomainFrame) * 0.5)
     totalSpectralPower = magnitudeSpectrum.sum()
-    return magnitudeSpectrum.max() / totalSpectralPower  # crest
+    return magnitudeSpectrum.max() / totalSpectralPower  # return crest factor

@@ -10,24 +10,38 @@ _logger = logging.getLogger(__name__)
 
 def getConfiguration():
     """Reads a configuration file using ConfigParser"""
+
     configFilePath = getDefaultConfigFile()
+    # try reading an existing configuration
     try:
         appConfiguration = readConfiguration(configFilePath)
         _logger.info('Read config file {0}'.format(configFilePath))
+    # create a new config file if needed
     except (ctexceptions.FileNotFoundError, EnvironmentError):
         _logger.warn('Config file could not be read, using defaults and '
                      'creating file in {0}'.format(configFilePath))
         appConfiguration = createDefaultConfiguration()
         writeConfiguration(appConfiguration, configFilePath)
         _logger.info('Created config file {0}'.format(configFilePath))
+    # return the read or created ConfigParser object
     return appConfiguration
 
 def getDefaultConfigFile():
+    """Get the default path for a cleverthumbnailer config file
+
+    Uses appdir module to fetch an OS-specific config directory. Config file
+    is created as defaults.conf
+
+    Returns:
+        string: config file path
+    """
     return os.path.join(appdirs.user_config_dir(
         ctconstants.APPNAME), 'defaults.conf')
 
 def readConfiguration(configFilePath):
-    """Reads configuration from file
+    """Read configuration from file
+
+    Uses Python ConfigParser to read config options from a file.
 
     Args:
         configFilePath(string): file path to read from
@@ -63,11 +77,21 @@ def writeConfiguration(someConfig, fileLocation):
 
 
 def createDefaultConfiguration():
+    """Create a full set of configuration data for cleverthumbnailer.
+
+    Uses ConfigParser to create a set of configuration options.
+
+    Returns:
+        ConfigParser: populated ConfigParser object to be used by application
+    """
+
     cfg = ConfigParser.ConfigParser()
+    # three main sections of config
     cfg.add_section('DEFAULTS')
     cfg.add_section('AUDIO')
     cfg.add_section('IO')
 
+    # audio/command line behaviour defaults
     cfg.set('DEFAULTS', 'fadein', '0.5')
     cfg.set('DEFAULTS', 'fadeout', '0.5')
     cfg.set('DEFAULTS', 'cropstart', '7')
@@ -77,5 +101,6 @@ def createDefaultConfiguration():
 
     cfg.set('AUDIO', 'rmswindowsize', '1024')
 
+    # default output file name append string
     cfg.set('IO', 'defaultoutputfileappend', '_thumb')
     return cfg

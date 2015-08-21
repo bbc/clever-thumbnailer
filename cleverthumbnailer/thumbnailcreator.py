@@ -1,3 +1,5 @@
+"""Audio thumbnail creator, powered by calling SoX subprocess"""
+
 import os
 import logging
 import subprocess
@@ -19,22 +21,26 @@ def createThumbnail(inFile, outFile, startSeconds, durationSeconds, fade):
         fadeOut(float): fade out time in seconds
     """
     _logger.debug('Creating thumbnail from track {0} to track {1} with fade'
-                  ' times {2}. Starting at {3}s, duration {4}s.'.format(
+                  ' times {2}. Starting at {3:.1f}s, duration {'
+                  '4:.1f}s.'.format(
         inFile, outFile, fade, startSeconds, durationSeconds)
     )
 
+    # pre-emptively check for file's existence
     if not os.path.isfile(inFile):
         raise ctexceptions.FileNotFoundError('Input file not found when '
                                 'creating thumbnail')
 
+    # build sox subprocess parameters
     s = ['sox', str(inFile), str(outFile), 'trim', str(startSeconds),
          str(durationSeconds), 'fade', 't', str(fade[0]), str(durationSeconds),
          str(fade[1])]
-    _logger.debug('Calling sox with parameters: {0}'.format(' '.join(s)))
 
+    # call SoX to create new file
+    _logger.debug('Calling sox with parameters: {0}'.format(' '.join(s)))
     try:
         subprocess.call(s)
     except subprocess.CalledProcessError:
         _logger.error('Error using SoX to create thumbnail, using '
                       'parameters: {0}'.format(s))
-        raise ()
+        raise ctexceptions.SoxError('Error creating thumbnail')

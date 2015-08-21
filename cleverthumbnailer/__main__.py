@@ -74,7 +74,7 @@ def main(args=None):
     thumbStart, thumbEnd = analyser.thumbnail
     thumbStartInSeconds = analyser.audio.inSeconds(thumbStart)
     thumbEndInSeconds = analyser.audio.inSeconds(thumbEnd)
-    _logger.info('Creating thumbnail from {0}s to {1}s'.format(
+    _logger.info('Creating thumbnail from {0:.1f}s to {1:.1f}s'.format(
         thumbStartInSeconds, thumbEndInSeconds
     ))
     # get output file name
@@ -202,14 +202,21 @@ def createOutputFileName(originalFileName, appendString):
         appendString(string): String to append to original file name
 
     Returns:
-        string: [originalwithoutextension][appendString].[extension]"""
+        string: [originalwithoutextension][appendString].[extension]
+    """
+
+    # split off the extension from the rest of the file path
     noExt, ext = os.path.splitext(originalFileName)
+    # append then re-add file extension
     return ''.join([noExt, appendString, ext])
 
 def positiveReal(value):
     """Checks if a value is a positive, real number"""
+
+    # first, check if value is a number at all
     try:
         floatVal = float(value)
+        # check positive
         if floatVal < 0:
             raise argparse.ArgumentTypeError('{0} is not a positive '
                                              'number'.format(value))

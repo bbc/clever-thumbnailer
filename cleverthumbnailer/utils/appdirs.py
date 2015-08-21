@@ -43,7 +43,7 @@ else:
 
 
 def user_data_dir(appname=None, appauthor=None, version=None, roaming=False):
-    r"""Return full path to the user-specific data dir for this application.
+    """Return full path to the user-specific data dir for this application.
 
         "appname" is the name of application.
             If None, just the system directory is returned.

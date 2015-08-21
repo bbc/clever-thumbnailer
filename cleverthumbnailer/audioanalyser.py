@@ -63,7 +63,7 @@ class AudioAnalyser(object):
             self.audio = audiodata.AudioData(fileName)
             _logger.info(
                 'Length of audio file before cropping is {0}'.format(
-                    self.audio.inSeconds(len(self.audio.waveData))
+                    self.audio.sampleToTimestamp(len(self.audio.waveData))
                 ))
 
             # crop by passing fade in and fade out as arguments
@@ -71,7 +71,7 @@ class AudioAnalyser(object):
                             self.audio.inSamples(
                                 self.crop[1]))
             _logger.info('Length of audio file after cropping is {0}'.format(
-                self.audio.inSeconds(len(self.audio.waveData))
+                self.audio.sampleToTimestamp(len(self.audio.waveData))
             ))
             self.loaded = True
         # AudioData.__init__throws IOError or FileFormatNotSupportedError if it
@@ -220,6 +220,10 @@ class AudioAnalyser(object):
             # 3. applying an offset to it so that start and end are relative
             # to original audio rather than self.waveData
             thumbnailStart = loudSections[0].start - self.prelude
+            _logger.info('Chosen segment runs from {0} to {1}'.format(
+                self.audio.sampleToTimestamp(loudSections[0].start),
+                self.audio.sampleToTimestamp(loudSections[0].end)
+            ))
             return self.offsetThumbnail(mathtools.coerceThumbnail(
                 thumbnailStart,
                 thumbnailStart + self.thumbLengthInSamples,

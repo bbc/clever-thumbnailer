@@ -122,19 +122,23 @@ def coerceThumbnail(start, end, songLength):
     Raises:
         ValueError: if length is greater than end-start
     """
+
+    # If the thumbnail is longer than the song, we can't do anything with it
     if (end - start) >= songLength:
         raise ValueError('Song length is shorter than thumbnail to be created')
 
+    # if the thumbnail overflows the end of the song, move it backwards
     if end > songLength:
         overFlow = end - songLength
         start -= overFlow
         end -= overFlow
 
+    # if the thumbnail starts before the song, move it forwards
     if start < 0:
         end += -1 * start
         start = 0
 
-    return start, end  # TODO: check
+    return start, end   # return a new thumbnail tuple
 
 
 def inSeconds(sr, sampleN):
