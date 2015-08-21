@@ -1,22 +1,39 @@
 import numpy
 
-from cleverthumbnailer.featureextractor.timedomainextractor import \
-    TimeDomainExtractor
-from cleverthumbnailer.utils.mathtools import interpMean, interpStats
+from cleverthumbnailer.featureextractor import timedomainextractor
+from cleverthumbnailer.utils import mathtools
 
 
-class LoudnessExtractor(TimeDomainExtractor):
-    """Process and store the windowed RMS of a signal.
+class LoudnessExtractor(timedomainextractor.TimeDomainExtractor):
+    """Find and store the windowed RMS amplitude of a signal.
+
+    LoudnessExtractor.processAll() works by:
+        1) Stepping through an audio waveform at a set interval (
+        self.stepSize), processing a window of the next self.blockSize audio
+        samples at each point.
+        2) Storing each of these RMS values in a list (self.features),
+        where each entry is a tuple of the form (timestampInSamples,
+        rmsValueInVolts).
+
+        Two helper methods, self.getMean() and self.getStats() are also
+        provided
+
     Attributes:
         sr (int): Working sample rate (in samples/sec) of feature extractor
         blockSize (int): Size of RMS window
-        stepSize (int): Size of RMS step
+        stepSize (int): Interval in samples between RMS calculations
         frameDomain (BlockDomain):
         features (list): Array of block RMS values.
 
     """
 
     def __init__(self, sr, blockSize=1024, stepSize=1024):
+        """
+        Args:
+            sr(int): Working sample rate (in samples/sec) of feature extractor
+            blockSize(int): Size of RMS window for feature extractor
+            stepSize(int): Interval in samples between RMS calculations
+        """
         super(LoudnessExtractor, self).__init__(sr)
         self._features = []
         self._currentSample = 0
@@ -33,6 +50,16 @@ class LoudnessExtractor(TimeDomainExtractor):
         return self._blockSize
 
     def processFrame(self, frame, timestamp=None):
+        """Process a single frame/block of audio data with loudness algorithm.
+
+        The loudness extractor algorithm does:
+            1) finds the RMS energy of a single time-domain block
+            2) Appends it to
+
+        :param frame:
+        :param timestamp:
+        :return:
+        """
         # don't worry about frame size; just process anyway
         frameVals = numpy.asarray(frame)
         rms = numpy.sqrt(numpy.mean(numpy.square(frameVals)))
@@ -54,7 +81,7 @@ class LoudnessExtractor(TimeDomainExtractor):
             mean (float): interpolated mean of audio extract RMS
 
         """
-        return interpMean(self._features, minSample, maxSample)
+        return mathtools.interpMean(self._features, minSample, maxSample)
 
     def getStats(self, minSample, maxSample):
         """Get the mean, min, and max RMS values of a piece of audio
@@ -69,4 +96,4 @@ class LoudnessExtractor(TimeDomainExtractor):
             max (float): maximum windowed RMS value of extract
 
         """
-        return interpStats(self._features, minSample, maxSample)
+        return mathtools.interpStats(self._features, minSample, maxSample)

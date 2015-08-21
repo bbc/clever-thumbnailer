@@ -6,34 +6,36 @@ from cleverthumbnailer.featureextractor.timedomainextractor import \
     TimeDomainExtractor
 from cleverthumbnailer.segment import Segment
 
+_logger = logging.getLogger(__name__)
 
+# noinspection PyInterpreter
 class ConstQSegmentExtractor(TimeDomainExtractor):
-    """Wrapper for QM DSP Constant-Q Segmenter_ algorithm.
+    """Wrapper for QM DSP Constant-Q Segmenter[1] algorithm.
 
     Analyzes audio and creates a candidate set of musical sections, described
     by type and timestamp. Such sections may resemble 'chorus', 'bridge',
     'verse', and are calculated based on musical similarity metrics.
 
-    _Segmenter: https://code.soundsoftware.ac.uk/projects/qm-dsp
+    [1]: https://code.soundsoftware.ac.uk/projects/qm-dsp
     """
 
     def __init__(self, sr, neighbourhoodLimit=4, segmentTypes=4):
         """
         Args:
-            sr (int): required sample rate to work at
-                neighbourhoodLimit (Optional[float]): minimum length of segment
+            sr(int): Working sample rate (in samples/sec) of feature extractor
+            neighbourhoodLimit (Optional[float]): minimum length of segment
                 (in seconds). Defaults to 1s
             segmentTypes (Optional[int]): desired number of target segment
                 types. Defaults to 4.
         """
-        self._logger = logging.getLogger(__name__)
+
         super(ConstQSegmentExtractor, self).__init__(sr)
         self.neighbourhoodLimit = neighbourhoodLimit
         self.segmentTypes = segmentTypes
         # create new QM segmenter instance
         self.qmsegmenter = qmsegmenter.ClusterMeltSegmenter(self.makeParams())
         self.qmsegmenter.initialise(sr)  # initialise instance
-        self._logger.debug(
+        _logger.debug(
             'Segmenter initialised with block size ' +
             '{0} and step size {1}, sample rate {2}.'.format(
                 self.blockSize,
@@ -71,7 +73,7 @@ class ConstQSegmentExtractor(TimeDomainExtractor):
             newSegment = Segment(
                 int(feature.start), int(feature.end), int(feature.type))
             self._features.append(newSegment)
-            self._logger.debug(
+            _logger.debug(
                 'Found segment #{0}: Start: {1}, End: {2}, Type: {3}'.format(
                 i,
                 self.sampleToTimestamp(newSegment.start),
@@ -101,6 +103,7 @@ class ConstQSegmentExtractor(TimeDomainExtractor):
 
     @property
     def segmentSampleRate(self):
+        """Get sample rate from QM-Segmenter plugin"""
         try:
             return float(self._segInfo.samplerate)
         except AttributeError:
@@ -108,6 +111,11 @@ class ConstQSegmentExtractor(TimeDomainExtractor):
 
     @property
     def nSegTypes(self):
+        """Get number of distinct segment types recognised
+
+        Return:
+            int: Number of distinct segment types (or None)
+        """
         try:
             return int(self._segInfo.nsegtypes)
         except AttributeError:

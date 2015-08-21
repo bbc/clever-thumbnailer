@@ -24,7 +24,7 @@ class GenericExtractor(object):
     def __init__(self, sr):
         """
         Args:
-            sr (int): required sample rate to work at
+            sr(int): Working sample rate (in samples/sec) of feature extractor
         Raises:
             TypeError: If `sr` is not a positive whole number
         """
@@ -89,24 +89,37 @@ class GenericExtractor(object):
 
     @property
     def done(self):
+        """Indicate whether feature extractor processing has finished"""
         return self._done
 
     @property
     def features(self):
+        """Get all features extracted by plugin from audio"""
         return self._features
 
     def inSamples(self, secs):
+        """Convert a time in seconds to number of samples"""
         return mathtools.inSamples(self.sr, secs)
 
     def inSeconds(self, samples):
+        """Convert a time in samples to a time in seconds"""
         return mathtools.inSeconds(self.sr, secs)
 
     def tupleToTimestamp(self, someTuple):
+        """Convert a tuple (such as a thumbnail) of samples to a tuple of
+        strings representing hh:mm:ss times"""
         return mathtools.tupleToTimestamp(self.sr, someTuple)
 
     def sampleToTimestamp(self, sampleN):
+        """Convert a time in samples to string (hh:mm:ss) representation"""
         return mathtools.samplesToTimestamp(self.sr, sampleN)
 
     @property
     def frameDomain(self):
+        """Indicate what domain is expected for input to the feature extractor.
+        Implemented in subclasses
+
+        Raises:
+            NotImplementedError: if this method is not overridden by a subclass
+        """
         raise NotImplementedError
