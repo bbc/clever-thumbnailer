@@ -23,9 +23,14 @@ setup(
     ],
 
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 2 - Pre-Alpha',
         'Environment :: Console',
+        'Intended Audience :: Information Technology',
         'License :: OSI Approved :: GNU General Public License v2 or ' +
-        'later (GPLv2+)'
+        'later (GPLv2+)',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Unix',
+        'Programming Language :: Python :: 2.7',
+        'Topic :: Multimedia :: Sound/Audio :: Analysis',
     ]
 )
