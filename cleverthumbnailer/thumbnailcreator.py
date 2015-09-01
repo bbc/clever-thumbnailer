@@ -39,7 +39,8 @@ def createThumbnail(inFile, outFile, startSeconds, durationSeconds, fade):
     # call SoX to create new file
     _logger.debug('Calling sox with parameters: {0}'.format(' '.join(s)))
     try:
-        subprocess.call(s)
+        # call subprocess, and throw exception on non-zero exit code.
+        subprocess.check_call(s)
     except subprocess.CalledProcessError:
         _logger.error('Error using SoX to create thumbnail, using '
                       'parameters: {0}'.format(s))
