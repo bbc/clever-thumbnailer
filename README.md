@@ -22,7 +22,7 @@ calculated by tracking the RMS energy over the course of a piece. Sections of a 
 
 ##Usage
 
-Cleverthumbnauiler is a command-line python application, and will create an audio thumbnail file in the same format and directory as some input file, using sensible defaults, by typing `cleverthumbnailer inputfile.wav`. Optional command-line arguments can be provided to override these defaults, and a brief overview of these is given by typing 'cleverthumbnailer -h'.
+Cleverthumbnailer is a command-line python application, and will create an audio thumbnail file in the same format and directory as some input file, using sensible defaults, by typing `cleverthumbnailer inputfile.wav`. Optional command-line arguments can be provided to override these defaults, and a brief overview of these is given by typing 'cleverthumbnailer -h'.
 
 ###Command Line arguments
 
