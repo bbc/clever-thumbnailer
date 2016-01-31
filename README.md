@@ -1,6 +1,6 @@
 #CleverThumbnailer
 
-Cleverthumbnailer is a Python2 application that analyses songs and creates short audio thumbnails of them based.
+Cleverthumbnailer is a Python2 application that analyses songs and creates short audio thumbnails of them.
 
 ## Algorithm
 
