@@ -1,2 +1,2 @@
 ACLOCAL_AMFLAGS = -I build-scripts
-SUBDIRS = src .
+SUBDIRS = kissfft src .

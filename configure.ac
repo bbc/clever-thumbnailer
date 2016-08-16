@@ -22,6 +22,7 @@ AC_PROG_CC_C99
 
 AC_PROG_INSTALL
 AC_PROG_LN_S
+AC_PROG_RANLIB
 
 AC_C_CONST
 AC_C_BIGENDIAN
@@ -63,6 +64,7 @@ dnl ############## Output files
 
 AC_CONFIG_FILES([
   Makefile
+  kissfft/Makefile
   src/Makefile
 ])
 
