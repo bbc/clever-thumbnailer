@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
     float fade_out = DEFAULT_FADE_OUT;
     float length = DEFAULT_LENGTH;
     float prelude = DEFAULT_PRELUDE;
+    int result = -1;
     int opt;
 
     // Make STDOUT unbuffered
@@ -116,6 +117,13 @@ int main(int argc, char *argv[])
         output_filename = argv[1];
     }
 
+    result = trim_audio_file(
+        input_filename,
+        output_filename,
+        30.0,
+        length
+    );
+
     // Success
-    return 0;
+    return result;
 }

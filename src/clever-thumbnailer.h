@@ -29,4 +29,8 @@
 #define TRUE  (1)
 #endif
 
+
+int trim_audio_file(const char* input_filename, const char* output_filename, float offset, float length);
+
+
 #endif
