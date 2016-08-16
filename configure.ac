@@ -19,6 +19,7 @@ AM_SANITY_CHECK
 AM_PROG_AR
 AC_PROG_CC
 AC_PROG_CC_C99
+AC_PROG_CXX
 
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -41,12 +42,10 @@ AC_FUNC_REALLOC
 
 dnl ############## Check for packages we depend upon
 
-AC_CHECK_LIB([m], [sqrt], , [AC_MSG_ERROR(Can't find libm)])
-AC_CHECK_LIB([m], [lrintf])
-AC_CHECK_LIB([mx], [powf])
+AC_CHECK_LIB([cblas], [cblas_ddot])
+AC_CHECK_LIB([lapack], [dgetrf])
 
 PKG_CHECK_MODULES(SNDFILE, sndfile >= 1.0.18)
-
 
 
 dnl ############## Compiler and Linker Flags
@@ -65,6 +64,7 @@ dnl ############## Output files
 AC_CONFIG_FILES([
   Makefile
   kissfft/Makefile
+  qmsegmenter/Makefile
   src/Makefile
 ])
 

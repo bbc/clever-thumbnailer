@@ -17,6 +17,8 @@ Makefile
 Makefile.in
 stamp-h1
 
+qmsegmenter/segmenter-test
+
 src/clever-thumbnailer
 src/config.h
 src/config.h.in
