@@ -10,6 +10,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <sndfile.h>
 
 #include "clever-thumbnailer.h"
 
@@ -17,6 +18,19 @@
 // ------- Globals -------
 int quiet = FALSE;
 int verbose = FALSE;
+
+
+float calculate_middle_thumbnail(SNDFILE *input, SF_INFO *input_info, float thumb_length)
+{
+    float total_length = ((float)input_info->frames / input_info->samplerate);
+
+    if (thumb_length >= total_length) {
+        fprintf(stderr, "Warning: requested thumbnail duration is longer than original audio\n");
+        return 0.0;
+    } else {
+        return (total_length / 2) - (thumb_length / 2);
+    }
+}
 
 
 static void usage()
@@ -52,8 +66,13 @@ int main(int argc, char *argv[])
     float fade_out = DEFAULT_FADE_OUT;
     float length = DEFAULT_LENGTH;
     float prelude = DEFAULT_PRELUDE;
+    float offset = 0.0;
     int result = -1;
     int opt;
+
+    SNDFILE *input = NULL;
+    SF_INFO input_info;
+
 
     // Make STDOUT unbuffered
     setbuf(stdout, NULL);
@@ -117,12 +136,27 @@ int main(int argc, char *argv[])
         output_filename = argv[1];
     }
 
+    // Open the input file
+    memset(&input_info, 0, sizeof(SF_INFO));
+    input = sf_open(input_filename, SFM_READ, &input_info);
+    if (input == NULL) {
+        fprintf(stderr, "Failed to open input file: %s\n", sf_strerror(NULL));
+        return -1;
+    }
+    
+    offset = calculate_middle_thumbnail(input, &input_info, length);
+
     result = trim_audio_file(
-        input_filename,
+        input,
+        &input_info,
         output_filename,
-        30.0,
+        offset,
         length
     );
+
+    if (input) {
+        sf_close(input);
+    }
 
     // Success
     return result;

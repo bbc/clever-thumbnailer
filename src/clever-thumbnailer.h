@@ -30,7 +30,8 @@
 #endif
 
 
-int trim_audio_file(const char* input_filename, const char* output_filename, float offset, float length);
+float calculate_middle_thumbnail(SNDFILE *input, SF_INFO *input_info, float length);
+int trim_audio_file(SNDFILE *input, SF_INFO *input_info, const char* output_filename, float offset, float length);
 
 
 #endif

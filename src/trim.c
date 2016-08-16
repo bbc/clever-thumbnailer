@@ -40,47 +40,37 @@ static int copy_frames(
 }
 
 int trim_audio_file(
-    const char* input_filename,
+    SNDFILE *input,
+    SF_INFO *input_info,
     const char* output_filename,
     float offset,
     float length)
 {
-    SNDFILE *input, *output;
-    SF_INFO input_info, output_info;
+    SNDFILE *output;
+    SF_INFO output_info;
 
-    // Open the input file
-    memset(&input_info, 0, sizeof(SF_INFO));
-    input = sf_open(input_filename, SFM_READ, &input_info);
-    if (input == NULL) {
-        fprintf(stderr, "Failed to open input file: %s\n", sf_strerror(NULL));
-        return -1;
-    }
-
-    // Seek to the start offset
-    sf_count_t result = sf_seek(input, ceilf(offset * input_info.samplerate), SEEK_SET);
+    // Seek to the offset in the input file
+    sf_count_t result = sf_seek(input, ceilf(offset * input_info->samplerate), SEEK_SET);
     if (result < 1) {
         fprintf(stderr, "Failed to seek to offset: %1.1f\n", offset);
-        sf_close(input);
         return -1;
     }
 
     // Open the output file
     memset(&output_info, 0, sizeof(SF_INFO));
-    output_info.samplerate = input_info.samplerate;
-    output_info.channels = input_info.channels;
+    output_info.samplerate = input_info->samplerate;
+    output_info.channels = input_info->channels;
     // FIXME: choose output format based on the output filename
-    output_info.format = input_info.format;
+    output_info.format = input_info->format;
     output = sf_open(output_filename, SFM_WRITE, &output_info);
     if (output == NULL) {
         fprintf(stderr, "Failed to open output file: %s\n", sf_strerror(NULL));
-        sf_close(input);
         return -1;
     }
 
     // Now copy frames from in to out
-    copy_frames(input, output, input_info.channels, ceilf(length * input_info.samplerate));
+    copy_frames(input, output, input_info->channels, ceilf(length * input_info->samplerate));
 
-    sf_close(input);
     sf_close(output);
 
     // Success
