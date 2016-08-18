@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
     memset(&input_info, 0, sizeof(SF_INFO));
     input = sf_open(input_filename, SFM_READ, &input_info);
     if (input == NULL) {
-        fprintf(stderr, "Failed to open input file: %s\n", sf_strerror(NULL));
+        ct_error("Failed to open input file: %s", sf_strerror(NULL));
         return -1;
     }
 
@@ -143,12 +143,12 @@ int main(int argc, char *argv[])
     }
 
     result = trim_audio_file(
-        input,
-        &input_info,
-        output_filename,
-        offset,
-        length
-    );
+                 input,
+                 &input_info,
+                 output_filename,
+                 offset,
+                 length
+             );
 
     if (input) {
         sf_close(input);

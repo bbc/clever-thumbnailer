@@ -25,12 +25,12 @@ static int copy_frames(
         if (readcount > 0) {
             sf_count_t writecount = sf_writef_int(output, buffer, readcount);
             if (writecount < 1) {
-                fprintf(stderr, "sf_writef_int error: %s\n", sf_strerror(output));
+                ct_warning("sf_writef_int error: %s", sf_strerror(output));
                 return -1;
             }
             frames -= readcount;
         } else {
-            fprintf(stderr, "sf_readf_int error: %s\n", sf_strerror(input));
+            ct_warning("sf_readf_int error: %s", sf_strerror(output));
             return -1;
         }
     }
@@ -52,7 +52,7 @@ int trim_audio_file(
     // Seek to the offset in the input file
     sf_count_t result = sf_seek(input, ceilf(offset * input_info->samplerate), SEEK_SET);
     if (result < 1) {
-        fprintf(stderr, "Failed to seek to offset: %1.1f\n", offset);
+        ct_warning("Failed to seek to offset: %1.1f\n", offset);
         return -1;
     }
 
@@ -64,7 +64,7 @@ int trim_audio_file(
     output_info.format = input_info->format;
     output = sf_open(output_filename, SFM_WRITE, &output_info);
     if (output == NULL) {
-        fprintf(stderr, "Failed to open output file: %s\n", sf_strerror(NULL));
+        ct_warning("Failed to open output file: %s\n", sf_strerror(NULL));
         return -1;
     }
 
@@ -75,5 +75,4 @@ int trim_audio_file(
 
     // Success
     return 0;
-
 }

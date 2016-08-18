@@ -6,4 +6,5 @@ clever_thumbnailer_LDADD = ../qmsegmenter/libqmsegmenter.a ../kissfft/libkissfft
 clever_thumbnailer_SOURCES = \
   clever-thumbnailer.c \
   analysis.cpp \
+  utils.c \
   trim.c

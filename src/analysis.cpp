@@ -16,20 +16,21 @@ static const Segmentation& perform_segmentation(SNDFILE *input, SF_INFO *sfinfo)
     // Calculate neighbourhood limit in seconds
     params.neighbourhoodLimit = (SEGMENTER_MIN_SEGMENT_SIZE / params.hopSize) + 0.0001;
 
+    ct_debug("Starting Segmenter");
     ClusterMeltSegmenter segmenter = ClusterMeltSegmenter(params);
     segmenter.initialise(sfinfo->samplerate);
 
     // get preferred window(block) size
     int window = segmenter.getWindowsize();
-    printf("Window Size: %d samples\n", window);
+    ct_debug("  Window Size: %d samples", window);
     
     // get preferred hop(step) size
     int hop = segmenter.getHopsize();
-    printf("Hop Size: %d samples\n", hop);
+    ct_debug("  Hop Size: %d samples", hop);
 
     double* buffer = (double*)malloc(window * sizeof(double));
     if (buffer == NULL) {
-        fprintf(stderr, "Error: failed to allocate memory for buffer\n");
+        ct_error("Failed to allocate memory for segmenter audio buffer.");
         exit(-1);
     }
 
@@ -45,7 +46,7 @@ static const Segmentation& perform_segmentation(SNDFILE *input, SF_INFO *sfinfo)
     free(buffer);
     sf_close(input);
 
-    printf("Performing segmentation...\n");
+    ct_debug("Performing segmentation...");
     segmenter.segment(SEGMENTER_MAX_SEGMENTS);
 
     // get results
@@ -58,7 +59,7 @@ float calculate_middle_thumbnail(SNDFILE *input, SF_INFO *input_info, float thum
     float total_length = ((float)input_info->frames / input_info->samplerate);
 
     if (thumb_length >= total_length) {
-        fprintf(stderr, "Warning: requested thumbnail duration is longer than original audio\n");
+        ct_warning("Requested thumbnail duration is longer than original audio.");
         return 0.0;
     } else {
         return (total_length / 2) - (thumb_length / 2);
@@ -70,8 +71,8 @@ float calculate_clever_thumbnail(SNDFILE *input, SF_INFO *sfinfo, float thumb_le
 {
     // Step 1: segment the audio
     const Segmentation& seginfo = perform_segmentation(input, sfinfo);
-    printf(
-        "Audio segmented into %d types, with %d total sections, at %dHz sample rate.\n",
+    ct_debug(
+        "Audio segmented into %d types, with %d total sections, at %dHz sample rate.",
         (int)seginfo.nsegtypes,
         (int)seginfo.segments.size(),
         seginfo.samplerate

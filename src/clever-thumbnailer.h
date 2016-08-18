@@ -9,6 +9,8 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
+#include <sndfile.h>
+
 
 #ifndef CLEVER_THUMBNAILER_H
 #define CLEVER_THUMBNAILER_H
@@ -36,6 +38,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern int verbose;
+extern int quiet;
+
+typedef enum {
+    LOGLEVEL_DEBUG=1,   // Only display debug if verbose
+    LOGLEVEL_INFO,      // Don't show info when quiet
+    LOGLEVEL_WARNING,   // Always display warnings
+    LOGLEVEL_ERROR,     // Quit after errors
+} LogLevel;
+
+
+#define ct_debug( ... )    ct_log( LOGLEVEL_DEBUG, __VA_ARGS__ )
+#define ct_info( ... )     ct_log( LOGLEVEL_INFO, __VA_ARGS__ )
+#define ct_warning( ... )  ct_log( LOGLEVEL_WARNING, __VA_ARGS__ )
+#define ct_error( ... )    ct_log( LOGLEVEL_ERROR, __VA_ARGS__ )
+
+
+void ct_log( LogLevel level, const char* fmt, ... );
 
 float calculate_clever_thumbnail(SNDFILE *input, SF_INFO *input_info, float length);
 
