@@ -20,19 +20,6 @@ int quiet = FALSE;
 int verbose = FALSE;
 
 
-float calculate_middle_thumbnail(SNDFILE *input, SF_INFO *input_info, float thumb_length)
-{
-    float total_length = ((float)input_info->frames / input_info->samplerate);
-
-    if (thumb_length >= total_length) {
-        fprintf(stderr, "Warning: requested thumbnail duration is longer than original audio\n");
-        return 0.0;
-    } else {
-        return (total_length / 2) - (thumb_length / 2);
-    }
-}
-
-
 static void usage()
 {
     printf("%s version %s\n\n", PACKAGE_NAME, PACKAGE_VERSION);
@@ -42,6 +29,7 @@ static void usage()
     printf("   -c <cropin>    Crop time from start in seconds (default %1.1f)\n", DEFAULT_CROP_IN);
     printf("   -C <cropout>   Crop time from end in seconds (default %1.1f)\n", DEFAULT_CROP_OUT);
     printf("   -d             Rate sections by dynamic range rather than max loudness\n");
+    printf("   -D             Be dumb - just use the middle 30 seconds instead\n");
     printf("   -f <fadein>    Fade-in duration in seconds (default %1.1f)\n", DEFAULT_FADE_IN);
     printf("   -F <fadeout>   Fade-out duration in seconds (default %1.1f)\n", DEFAULT_FADE_OUT);
     printf("   -h             Display this help message\n");
@@ -60,6 +48,7 @@ int main(int argc, char *argv[])
     const char* output_filename = NULL;
     int applause_detection = FALSE;
     int use_dynamic = FALSE;
+    int use_dumb = FALSE;
     float crop_in = DEFAULT_CROP_IN;
     float crop_out = DEFAULT_CROP_OUT;
     float fade_in = DEFAULT_FADE_IN;
@@ -88,6 +77,9 @@ int main(int argc, char *argv[])
             break;
         case 'C':
             crop_out = atof(optarg);
+            break;
+        case 'D':
+            use_dumb = TRUE;
             break;
         case 'n':
             use_dynamic = TRUE;
@@ -143,8 +135,12 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Failed to open input file: %s\n", sf_strerror(NULL));
         return -1;
     }
-    
-    offset = calculate_middle_thumbnail(input, &input_info, length);
+
+    if (use_dumb) {
+        offset = calculate_middle_thumbnail(input, &input_info, length);
+    } else {
+        offset = calculate_clever_thumbnail(input, &input_info, length);
+    }
 
     result = trim_audio_file(
         input,
