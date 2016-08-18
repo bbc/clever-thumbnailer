@@ -15,7 +15,6 @@ int main(int argc, const char* argv[])
     int nLimit = 4;          // minimum segment time in seconds
     int nComponents = 20;    // number of Principle Component Analysis components used in clustering (not currently implemented)
     int maxSegments = 10;    // *max* number of segment types (algorithm may return less)
-    int sr = 48000;
 
     SNDFILE *input = NULL;
     SF_INFO sfinfo;
