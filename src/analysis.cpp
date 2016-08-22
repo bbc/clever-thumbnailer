@@ -17,7 +17,7 @@ static const Segmentation& perform_segmentation(SNDFILE *input, SF_INFO *sfinfo)
     params.neighbourhoodLimit = (SEGMENTER_MIN_SEGMENT_SIZE / params.hopSize) + 0.0001;
 
     ct_debug("Starting Segmenter");
-    ClusterMeltSegmenter segmenter = ClusterMeltSegmenter(params);
+    static ClusterMeltSegmenter segmenter = ClusterMeltSegmenter(params);
     segmenter.initialise(sfinfo->samplerate);
 
     // get preferred window(block) size
@@ -44,7 +44,6 @@ static const Segmentation& perform_segmentation(SNDFILE *input, SF_INFO *sfinfo)
     }
 
     free(buffer);
-    sf_close(input);
 
     ct_debug("Performing segmentation...");
     segmenter.segment(SEGMENTER_MAX_SEGMENTS);
@@ -79,10 +78,47 @@ float calculate_clever_thumbnail(SNDFILE *input, SF_INFO *sfinfo, float thumb_le
     );
 
     // Step 2: ignore segments with applause
+    // FIXME: do this
 
     // Step 3: calculate loudness of each segment
+    int loudest_segment = 0;
+    double loudest_value = -1.0;
+    for (int i = 0; i < seginfo.segments.size(); i++)
+    {
+        const Segment &segment = seginfo.segments[i];
+        double mean, min, max;
 
+        ct_debug(
+            " Section %d: Type %d. Start %2.2d:%2.2d, end %2.2d:%2.2d. ",
+            i, segment.type,
+            MM_SS(segment.start / sfinfo->samplerate),
+            MM_SS(segment.end / sfinfo->samplerate)
+        );
+
+        
+        int result = calculate_segment_loudness(
+            input, sfinfo,
+            segment.start, segment.end,
+            &mean, &min, &max
+        );
+        
+        if (result) {
+            ct_debug(
+                "   mean=%1.1f min=%1.1f max=%1.1f range=%1.1f",
+                LIN2DB(mean), LIN2DB(min), LIN2DB(max), LIN2DB(max-min)
+            );
+            
+            if (loudest_value < mean) {
+                loudest_segment = i;
+                loudest_value = mean;
+            }
+        }        
+    }
+    
     // Step 4: pick the loudest segment
+    const Segment &segment = seginfo.segments[loudest_segment];
+    ct_info("Loudest segment is %d and starts at %2.2d:%2.2d", loudest_segment, MM_SS(segment.start / sfinfo->samplerate));
 
-    return 0.0f;
+
+    return segment.start / sfinfo->samplerate;
 }

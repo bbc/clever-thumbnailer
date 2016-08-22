@@ -51,7 +51,7 @@ int trim_audio_file(
 
     // Seek to the offset in the input file
     sf_count_t result = sf_seek(input, ceilf(offset * input_info->samplerate), SEEK_SET);
-    if (result < 1) {
+    if (result < 0) {
         ct_warning("Failed to seek to offset: %1.1f\n", offset);
         return -1;
     }
