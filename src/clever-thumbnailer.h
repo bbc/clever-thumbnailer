@@ -26,6 +26,9 @@
 #define SEGMENTER_MIN_SEGMENT_SIZE  (4.0f)
 #define SEGMENTER_MAX_SEGMENTS      (10)
 
+#define LOUDNESS_WINDOW_SIZE        (1024)
+
+
 
 #ifndef FALSE
 #define FALSE (0)
@@ -62,6 +65,8 @@ float calculate_clever_thumbnail(SNDFILE *input, SF_INFO *input_info, float leng
 
 float calculate_middle_thumbnail(SNDFILE *input, SF_INFO *input_info, float length);
 int trim_audio_file(SNDFILE *input, SF_INFO *input_info, const char* output_filename, float offset, float length);
+
+float calculate_segment_loudness(SNDFILE *input, SF_INFO *sfinfo, sf_count_t start, sf_count_t end);
 
 #ifdef __cplusplus
 }

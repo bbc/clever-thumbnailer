@@ -8,3 +8,8 @@ clever_thumbnailer_SOURCES = \
   analysis.cpp \
   utils.c \
   trim.c
+
+noinst_PROGRAMS = loudness-test
+loudness_test_CFLAGS = $(SNDFILE_CFLAGS) $(WARNING_CFLAGS)
+loudness_test_LDADD = $(SNDFILE_LIBS)
+loudness_test_SOURCES = loudness-test.c loudness.c utils.c
