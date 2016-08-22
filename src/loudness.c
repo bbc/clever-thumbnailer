@@ -4,7 +4,7 @@
 #include "clever-thumbnailer.h"
 
 
-static double calculate_window_mean_loudness(SNDFILE *input, SF_INFO *sfinfo)
+static double calculate_window_rms(SNDFILE *input, SF_INFO *sfinfo)
 {
     double buffer[LOUDNESS_WINDOW_SIZE * 2];
     double total = 0.0;
@@ -16,10 +16,10 @@ static double calculate_window_mean_loudness(SNDFILE *input, SF_INFO *sfinfo)
     }
     
     for (sf_count_t i=0; i<readcount; i++) {
-        total += fabs(buffer[i]);
+        total += (buffer[i] * buffer[i]);
     }
 
-    return total / readcount;
+    return sqrt(total / readcount);
 }
 
 
@@ -42,7 +42,7 @@ float calculate_segment_loudness(SNDFILE *input, SF_INFO *sfinfo, sf_count_t sta
     }
 
     for(remaining = end-start; remaining > 0; remaining -= LOUDNESS_WINDOW_SIZE) {
-        double window_loudness = calculate_window_mean_loudness(input, sfinfo);
+        double window_loudness = calculate_window_rms(input, sfinfo);
         total += window_loudness;
         window_count++;
     }

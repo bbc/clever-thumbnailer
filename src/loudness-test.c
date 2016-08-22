@@ -41,7 +41,7 @@ int main(int argc, const char *argv[])
         return -1;
     }
 
-    printf("| Start | End   | Mean     |\n");
+    printf("| Start | End   | RMS      |\n");
     printf("|-------|-------|----------|\n");
     const int segment_size = 10 * sfinfo.samplerate;
     for(int i=0; i < sfinfo.frames; i += segment_size) {
