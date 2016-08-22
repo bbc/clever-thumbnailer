@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     setbuf(stdout, NULL);
 
     // Parse Switches
-    while ((opt = getopt(argc, argv, "ac:C:df:F:hl:p:qv")) != -1) {
+    while ((opt = getopt(argc, argv, "ac:C:Df:F:hl:p:qv")) != -1) {
         switch (opt) {
         case 'a':
             applause_detection = TRUE;
