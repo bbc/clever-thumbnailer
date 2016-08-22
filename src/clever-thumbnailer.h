@@ -38,6 +38,11 @@
 #define TRUE  (1)
 #endif
 
+
+#define MM_SS(sec)   (sec / 60), (sec % 60)
+#define LIN2DB(val)  (20.0f * log10(val))
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -66,7 +71,10 @@ float calculate_clever_thumbnail(SNDFILE *input, SF_INFO *input_info, float leng
 float calculate_middle_thumbnail(SNDFILE *input, SF_INFO *input_info, float length);
 int trim_audio_file(SNDFILE *input, SF_INFO *input_info, const char* output_filename, float offset, float length);
 
-float calculate_segment_loudness(SNDFILE *input, SF_INFO *sfinfo, sf_count_t start, sf_count_t end);
+int calculate_segment_loudness(
+    SNDFILE *input, SF_INFO *sfinfo,
+    sf_count_t start, sf_count_t end,
+    double *mean, double *min, double *max);
 
 #ifdef __cplusplus
 }

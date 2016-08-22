@@ -24,16 +24,20 @@ static double calculate_window_rms(SNDFILE *input, SF_INFO *sfinfo)
 
 
 
-float calculate_segment_loudness(SNDFILE *input, SF_INFO *sfinfo, sf_count_t start, sf_count_t end)
+int calculate_segment_loudness(
+    SNDFILE *input, SF_INFO *sfinfo,
+    sf_count_t start, sf_count_t end,
+    double *mean, double *min, double *max)
 {
     sf_count_t remaining = 0;
     double total = 0.0;
     int window_count = 0;
 
+    // Seek to the starting point
     sf_count_t result = sf_seek(input, start, SEEK_SET);
     if (result < 0) {
         ct_warning("Failed to seek to offset: %d\n", start);
-        return 0;
+        return FALSE;
     }
 
     // Is the requested range longer than the file?
@@ -41,11 +45,22 @@ float calculate_segment_loudness(SNDFILE *input, SF_INFO *sfinfo, sf_count_t sta
         end = sfinfo->frames;
     }
 
-    for(remaining = end-start; remaining > 0; remaining -= LOUDNESS_WINDOW_SIZE) {
-        double window_loudness = calculate_window_rms(input, sfinfo);
-        total += window_loudness;
+    // All samples should be between 0 and 1, so these should be safe starting points
+    *min = 10.0;
+    *max = -10.0;
+
+    for(remaining = start; remaining < end; remaining += LOUDNESS_WINDOW_SIZE) {
+        double rms = calculate_window_rms(input, sfinfo);
+        if (rms < *min)
+            *min = rms;
+        if (rms > *max)
+            *max = rms;
+        total += rms;
         window_count++;
     }
+    
+    *mean = total / window_count;
 
-    return total / window_count;
+    // Success
+    return TRUE;
 }

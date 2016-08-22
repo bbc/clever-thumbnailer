@@ -7,8 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <signal.h>
-#include <time.h>
+#include <math.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <sndfile.h>
@@ -20,8 +19,6 @@
 int quiet = TRUE;
 int verbose = FALSE;
 
-
-#define MM_SS(sec)   (sec / 60), (sec % 60)
 
 
 int main(int argc, const char *argv[])
@@ -41,18 +38,22 @@ int main(int argc, const char *argv[])
         return -1;
     }
 
-    printf("| Start | End   | RMS      |\n");
-    printf("|-------|-------|----------|\n");
+    printf("| Start | End   | Mean     | Min      | Max      | Range    |\n");
+    printf("|-------|-------|----------|----------|----------|----------|\n");
     const int segment_size = 10 * sfinfo.samplerate;
     for(int i=0; i < sfinfo.frames; i += segment_size) {
+        double mean, min, max;
         int end = i + segment_size;
-        double loudness = calculate_segment_loudness(input, &sfinfo, i, end);
-        float db = 20.0f * log10f(loudness);
+        int result = calculate_segment_loudness(input, &sfinfo, i, end, &mean, &min, &max);
+
         printf(
-          "| %2.2d:%2.2d | %2.2d:%2.2d | %1.1f dB |\n",
+          "| %2.2d:%2.2d | %2.2d:%2.2d | %1.1f dB | %1.1f dB | %1.1f dB | %1.1f dB |\n",
           MM_SS(i / sfinfo.samplerate),
           MM_SS(end / sfinfo.samplerate),
-          db
+          LIN2DB(mean),
+          LIN2DB(min),
+          LIN2DB(max),
+          LIN2DB(max - min)
         );
     }
 
