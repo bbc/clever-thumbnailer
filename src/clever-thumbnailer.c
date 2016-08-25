@@ -143,12 +143,11 @@ int main(int argc, char *argv[])
     }
 
     result = trim_audio_file(
-                 input,
-                 &input_info,
-                 output_filename,
-                 offset,
-                 length
-             );
+        input, &input_info,
+        output_filename,
+        offset, length,
+        fade_in, fade_out
+    );
 
     if (input) {
         sf_close(input);

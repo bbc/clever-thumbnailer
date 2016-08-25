@@ -18,7 +18,7 @@
 #define DEFAULT_CROP_IN   (7.0)
 #define DEFAULT_CROP_OUT  (7.0)
 #define DEFAULT_FADE_IN   (0.5)
-#define DEFAULT_FADE_OUT  (2.0)
+#define DEFAULT_FADE_OUT  (3.0)
 #define DEFAULT_LENGTH    (30.0)
 #define DEFAULT_PRELUDE   (10.0)
 
@@ -67,9 +67,16 @@ typedef enum {
 void ct_log( LogLevel level, const char* fmt, ... );
 
 float calculate_clever_thumbnail(SNDFILE *input, SF_INFO *input_info, float length);
-
 float calculate_middle_thumbnail(SNDFILE *input, SF_INFO *input_info, float length);
-int trim_audio_file(SNDFILE *input, SF_INFO *input_info, const char* output_filename, float offset, float length);
+
+int trim_audio_file(
+    SNDFILE *input,
+    SF_INFO *input_info,
+    const char* output_filename,
+    float offset,
+    float length,
+    float fade_in,
+    float fade_out);
 
 int calculate_segment_loudness(
     SNDFILE *input, SF_INFO *sfinfo,
