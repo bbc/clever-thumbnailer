@@ -19,8 +19,9 @@ static void apply_fade(
 )
 {
     for(sf_count_t f=0; f < frames; f++) {
+        double half_sin_gain = (1 - cos(gain * M_PI )) / 2;
         for (int c=0; c < channels; c++) {
-            buffer[f*channels + c] *= gain;
+            buffer[f*channels + c] *= half_sin_gain;
         }
         gain += gain_per_frame;
     }
