@@ -15,7 +15,7 @@
 
 #include <vector>
 
-#include "segment.h"
+#include "cluster_segmenter.h"
 #include "Segmenter.h"
 #include "hmm.h"
 #include "Window.h"

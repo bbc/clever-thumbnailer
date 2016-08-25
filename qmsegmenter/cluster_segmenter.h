@@ -21,10 +21,18 @@
 #include <math.h>
 #include <float.h>
 
-#include "segment.h"
 #include "cluster_melt.h"
 #include "hmm.h"
 #include "pca.h"
+
+typedef enum 
+{ 
+	FEATURE_TYPE_UNKNOWN = 0, 
+	FEATURE_TYPE_CONSTQ = 1, 
+	FEATURE_TYPE_CHROMA = 2,
+	FEATURE_TYPE_MFCC = 3
+} feature_types;
+
 
 #ifdef __cplusplus
 extern "C" {

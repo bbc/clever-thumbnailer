@@ -18,7 +18,6 @@
 
 #include "ClusterMeltSegmenter.h"
 #include "cluster_segmenter.h"
-#include "segment.h"
 
 #include "FFT.h"
 #include "ConstantQ.h"

@@ -28,7 +28,6 @@ libqmsegmenter_a_SOURCES = \
     nan-inf.h \
     pca.c \
     pca.h \
-    segment.h \
     Segmenter.cpp \
     Segmenter.h \
     Window.h
