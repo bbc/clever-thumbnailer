@@ -63,7 +63,8 @@ model_t* hmm_init(double** x, int T, int L, int N)
 	for (i = 0; i < L; i++)
 		model->cov[i] = (double*) malloc(L*sizeof(double));
 	
-	srand(time(0));
+	// Clever-thumbnailer modification: disable seeding random number generator here:
+	// srand(time(0));
 	double* global_mean = (double*) malloc(L*sizeof(double));
 	
 	/* find global mean */

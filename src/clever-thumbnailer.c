@@ -36,6 +36,7 @@ static void usage()
     printf("   -h             Display this help message\n");
     printf("   -l <length>    Thumbnail length in seconds (default %1.1f)\n", DEFAULT_LENGTH);
     printf("   -p <prelude>   Seconds of additional lead-in (default %1.1f)\n", DEFAULT_PRELUDE);
+    printf("   -s <seed>      Seed the pseudo random number generator with this value\n");
     printf("   -q             Enable quiet mode\n");
     printf("   -v             Enable verbose mode\n");
 
@@ -56,6 +57,7 @@ int main(int argc, char *argv[])
     float length = DEFAULT_LENGTH;
     float prelude = DEFAULT_PRELUDE;
     float offset = 0.0;
+    int seed = 0;
     int result = -1;
     int opt;
 
@@ -67,7 +69,7 @@ int main(int argc, char *argv[])
     setbuf(stdout, NULL);
 
     // Parse Switches
-    while ((opt = getopt(argc, argv, "ac:C:dDf:F:hl:p:qv")) != -1) {
+    while ((opt = getopt(argc, argv, "ac:C:dDf:F:hl:p:s:qv")) != -1) {
         switch (opt) {
         case 'a':
             applause_detection = TRUE;
@@ -96,6 +98,9 @@ int main(int argc, char *argv[])
         case 'p':
             prelude = atof(optarg);
             break;
+        case 's':
+            seed = atoi(optarg);
+            break;
         case 'v':
             verbose = TRUE;
             break;
@@ -106,6 +111,15 @@ int main(int argc, char *argv[])
             usage();
             break;
         }
+    }
+
+    if (seed == 0) {
+        // Use the current time to seed the random number generator
+        srand(time(NULL));
+    } else {
+        // Seed the random number generator with the number provided
+        // so that we get the same result for multiple runs
+        srand(seed);
     }
 
     // Validate parameters
