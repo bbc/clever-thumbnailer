@@ -81,8 +81,8 @@ float calculate_clever_thumbnail(SNDFILE *input, SF_INFO *sfinfo, float thumb_le
     // FIXME: do this
 
     // Step 3: calculate loudness of each segment
-    int loudest_segment = 0;
-    double loudest_value = -1.0;
+    int best_segment = 0;
+    double best_segment_value = -1.0;
     for (int i = 0; i < seginfo.segments.size(); i++)
     {
         const Segment &segment = seginfo.segments[i];
@@ -103,22 +103,28 @@ float calculate_clever_thumbnail(SNDFILE *input, SF_INFO *sfinfo, float thumb_le
         );
         
         if (result) {
+            double current_value = use_dynamic ? max-min : mean;
+        
             ct_debug(
                 "   mean=%1.1f min=%1.1f max=%1.1f range=%1.1f",
                 LIN2DB(mean), LIN2DB(min), LIN2DB(max), LIN2DB(max-min)
             );
             
-            if (loudest_value < mean) {
-                loudest_segment = i;
-                loudest_value = mean;
+            if (best_segment_value < current_value) {
+                best_segment = i;
+                best_segment_value = current_value;
             }
         }        
     }
-    
-    // Step 4: pick the loudest segment
-    const Segment &segment = seginfo.segments[loudest_segment];
-    ct_info("Loudest segment is %d and starts at %2.2d:%2.2d", loudest_segment, MM_SS(segment.start / sfinfo->samplerate));
 
+    // Step 4: pick the best segment
+    const Segment &segment = seginfo.segments[best_segment];
+
+    if (use_dynamic) {
+        ct_info("Segment with greatest dynamic range is %d and starts at %2.2d:%2.2d", best_segment, MM_SS(segment.start / sfinfo->samplerate));
+    } else {
+        ct_info("Loudest segment is %d and starts at %2.2d:%2.2d", best_segment, MM_SS(segment.start / sfinfo->samplerate));
+    }
 
     return segment.start / sfinfo->samplerate;
 }

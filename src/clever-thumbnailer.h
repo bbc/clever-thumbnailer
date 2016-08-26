@@ -49,6 +49,7 @@ extern "C" {
 
 extern int verbose;
 extern int quiet;
+extern int use_dynamic;
 
 typedef enum {
     LOGLEVEL_DEBUG=1,   // Only display debug if verbose

@@ -18,6 +18,7 @@
 // ------- Globals -------
 int quiet = FALSE;
 int verbose = FALSE;
+int use_dynamic = FALSE;
 
 
 static void usage()
@@ -47,7 +48,6 @@ int main(int argc, char *argv[])
     const char* input_filename = NULL;
     const char* output_filename = NULL;
     int applause_detection = FALSE;
-    int use_dynamic = FALSE;
     int use_dumb = FALSE;
     float crop_in = DEFAULT_CROP_IN;
     float crop_out = DEFAULT_CROP_OUT;
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     setbuf(stdout, NULL);
 
     // Parse Switches
-    while ((opt = getopt(argc, argv, "ac:C:Df:F:hl:p:qv")) != -1) {
+    while ((opt = getopt(argc, argv, "ac:C:dDf:F:hl:p:qv")) != -1) {
         switch (opt) {
         case 'a':
             applause_detection = TRUE;
@@ -78,11 +78,11 @@ int main(int argc, char *argv[])
         case 'C':
             crop_out = atof(optarg);
             break;
+        case 'd':
+            use_dynamic = TRUE;
+            break;
         case 'D':
             use_dumb = TRUE;
-            break;
-        case 'n':
-            use_dynamic = TRUE;
             break;
         case 'f':
             fade_in = atof(optarg);
