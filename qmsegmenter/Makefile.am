@@ -33,6 +33,6 @@ libqmsegmenter_a_SOURCES = \
     Window.h
 
 noinst_PROGRAMS = segmenter-test
-segmenter_test_SOURCES = segmenter-test.cpp
-segmenter_test_CFLAGS = $(SNDFILE_CFLAGS) $(WARNING_CFLAGS)
+segmenter_test_SOURCES = segmenter_test.cpp
+segmenter_test_CXXFLAGS = $(SNDFILE_CFLAGS) $(WARNING_CFLAGS)
 segmenter_test_LDADD = libqmsegmenter.a ../kissfft/libkissfft.a $(SNDFILE_LIBS)
