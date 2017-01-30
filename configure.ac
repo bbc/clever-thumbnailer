@@ -43,8 +43,14 @@ AC_FUNC_REALLOC
 
 dnl ############## Check for packages we depend upon
 
-AC_CHECK_LIB([cblas], [cblas_ddot])
-AC_CHECK_LIB([lapack], [dgetrf])
+AC_CHECK_LIB([cblas], [cblas_ddot],, [
+    AC_MSG_ERROR([Couldn't find cblas_ddot in libcblas])
+])
+AC_CHECK_LIB([lapack], [dgetrf],, [
+    AC_CHECK_LIB([lapack], [dgetrf_],, [
+        AC_MSG_ERROR([Couldn't find dgetrf or dgetrf_ in liblapack])
+    ])
+])
 
 PKG_CHECK_MODULES(SNDFILE, sndfile >= 1.0.18)
 
