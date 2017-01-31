@@ -55,7 +55,7 @@ typedef enum {
     LOGLEVEL_DEBUG=1,   // Only display debug if verbose
     LOGLEVEL_INFO,      // Don't show info when quiet
     LOGLEVEL_WARNING,   // Always display warnings
-    LOGLEVEL_ERROR,     // Quit after errors
+    LOGLEVEL_ERROR      // Quit after errors
 } LogLevel;
 
 
