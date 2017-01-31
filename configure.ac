@@ -60,7 +60,6 @@ dnl ############## Compiler and Linker Flags
 # If maintainer mode is enabled then make warnings errors
 if test "$USE_MAINTAINER_MODE" = yes; then
   WARNING_CFLAGS="-Wall -Werror -pedantic -Wunused"
-  WARNING_CFLAGS="$WARNING_CFLAGS -Wmissing-prototypes"
   AC_SUBST(WARNING_CFLAGS)
 fi
 
