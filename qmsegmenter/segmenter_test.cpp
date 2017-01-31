@@ -91,7 +91,7 @@ int main(int argc, const char* argv[])
     );
 
 
-    for (int i = 0; i < segInfo.segments.size(); i++)
+    for (unsigned int i = 0; i < segInfo.segments.size(); i++)
     {
         Segment &segment = segInfo.segments[i];
         
