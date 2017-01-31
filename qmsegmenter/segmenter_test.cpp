@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void format_duration(char buffer[16], float seconds)
+static void format_duration(char buffer[16], float seconds)
 {
     int minutes = seconds / 60;
     snprintf(buffer, 15, "%2.2d:%05.2f", minutes, seconds - (minutes * 60));
