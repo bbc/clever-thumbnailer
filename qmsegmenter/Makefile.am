@@ -1,7 +1,7 @@
 noinst_LIBRARIES = libqmsegmenter.a
 
-libqmsegmenter_a_CXXFLAGS = -I../kissfft -Dkiss_fft_scalar=double
-libqmsegmenter_a_LIBADD = ../kissfft/libkissfft.a
+libqmsegmenter_a_CXXFLAGS = -I $(top_srcdir)/kissfft -Dkiss_fft_scalar=double
+libqmsegmenter_a_LIBADD = $(top_builddir)/kissfft/libkissfft.a
 libqmsegmenter_a_SOURCES = \
     cblas.h \
     Chromagram.cpp \
@@ -35,4 +35,4 @@ libqmsegmenter_a_SOURCES = \
 noinst_PROGRAMS = segmenter-test
 segmenter_test_SOURCES = segmenter_test.cpp
 segmenter_test_CXXFLAGS = $(SNDFILE_CFLAGS) $(WARNING_CFLAGS)
-segmenter_test_LDADD = libqmsegmenter.a ../kissfft/libkissfft.a $(SNDFILE_LIBS)
+segmenter_test_LDADD = libqmsegmenter.a $(top_builddir)/kissfft/libkissfft.a $(SNDFILE_LIBS)
