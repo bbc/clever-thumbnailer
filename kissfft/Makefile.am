@@ -5,4 +5,6 @@ libkissfft_a_SOURCES = \
   kiss_fft.c \
   kiss_fft.h \
   kiss_fftr.c \
-  kiss_fftr.h
+  kiss_fftr.h \
+  _kiss_fft_guts.h \
+  kissfft.hh
