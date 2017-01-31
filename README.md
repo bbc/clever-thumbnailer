@@ -1,6 +1,8 @@
 CleverThumbnailer
 =================
 
+[![Travis Build Status](https://travis-ci.org/bbc/clever-thumbnailer.svg?branch=master)](https://travis-ci.org/bbc/clever-thumbnailer)
+
 Cleverthumbnailer is a command line tool that analyses songs and creates short audio thumbnails of them.
 
 Algorithm
