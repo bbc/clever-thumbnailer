@@ -5,6 +5,7 @@ bin_PROGRAMS = clever-thumbnailer
 clever_thumbnailer_LDADD = $(top_builddir)/qmsegmenter/libqmsegmenter.a $(top_builddir)/kissfft/libkissfft.a $(SNDFILE_LIBS)
 clever_thumbnailer_SOURCES = \
   clever-thumbnailer.c \
+  clever-thumbnailer.h \
   analysis.cpp \
   loudness.c \
   utils.c \
